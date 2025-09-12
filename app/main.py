@@ -19,11 +19,10 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 # --- FIN NUEVA CONFIGURACIÓN ---
 
 # INCLUYE EL ROUTER EN LA APLICACIÓN PRINCIPAL
-app.include_router(rutas_publicas.router, tags=["Público Web"])
-#app.include_router(rutas_publicas.router, tags=["Público"]) # <-- SIN PREFIJO
 app.include_router(rutas_web.router, tags=["Panel Web"])
-# El router del panel también es una API, debe tener el prefijo.
+app.include_router(rutas_publicas.router, tags=["Público Web"])
 app.include_router(rutas_panel.router, prefix="/api/v1", tags=["Panel API"])
+app.include_router(rutas_gestion.router, prefix="/api/v1", tags=["Panel de Gestión"])
 
 # Routers con prefijo /api/v1
 app.include_router(rutas_api_publica.router, prefix="/api/v1", tags=["Público API"]) # <-- CON PREFIJO
@@ -35,9 +34,10 @@ app.include_router(rutas_superadmin.router, prefix="/api/v1", tags=["Super Admin
 # El router del KDS no lleva prefijo /api/v1 para que la URL sea más simple (ej: /ws/kds/1)
 app.include_router(rutas_kds.router, tags=["KDS WebSockets"])
 
-app.include_router(rutas_gestion.router, prefix="/api/v1", tags=["Panel de Gestión"])
+
 
 @app.get("/")
 def read_root():
     return {"message": "Bienvenido a " + settings.PROJECT_NAME}
+
 
