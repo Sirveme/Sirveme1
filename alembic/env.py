@@ -20,6 +20,17 @@ from app.db.modelos import * # Importante para que detecte todos los modelos
 # access to the values within the .ini file in use.
 config = context.config
 
+# --- BLOQUE DE CORRECCIÓN PARA RAILWAY ---
+# Importar 'os' para leer variables de entorno
+import os
+
+# Obtener la URL de la base de datos desde la variable de entorno de Railway
+# Si no la encuentra, usa el valor que está en alembic.ini (para desarrollo local)
+db_url = os.environ.get("DATABASE_URL")
+if db_url:
+    config.set_main_option("sqlalchemy.url", db_url)
+# --- FIN DEL BLOQUE DE CORRECCIÓN ---
+
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
 if config.config_file_name is not None:
