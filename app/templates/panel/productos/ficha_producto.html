@@ -1,0 +1,198 @@
+<!-- app/templates/panel/productos/ficha_producto.html -->
+{% extends "panel/panel_base.html" %}
+
+{% block content %}
+<div class="header">
+    <h1>Editar Producto: {{ producto.nombre }}</h1>
+    <p>Modifica los detalles de tu producto y sus variantes.</p>
+</div>
+
+<!-- Usaremos un layout de 2 columnas para el futuro (imágenes a la izquierda) -->
+<div class="ficha-layout">
+    <div class="form-container">
+        <!-- Este formulario es casi idéntico al del modal, pero con valores pre-rellenados -->
+        <form id="form-edit-producto" data-producto-id="{{ producto.id }}">
+            <!-- INFO ESENCIAL -->
+            <div class="form-group">
+                <label for="nombre">Nombre del Producto</label>
+                <input type="text" name="nombre" value="{{ producto.nombre }}" required>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="categoria_id">Categoría</label>
+                    <select name="categoria_id" required>
+                        {% for categoria in categorias %}
+                            <option value="{{ categoria.id }}" {% if categoria.id == producto.categoria_id %}selected{% endif %}>
+                                {{ categoria.nombre }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="tipo_producto">Tipo de Producto</label>
+                    <select name="tipo_producto" required>
+                        <option value="preparado" {% if producto.tipo_producto == 'preparado' %}selected{% endif %}>Preparado</option>
+                        <option value="envasado" {% if producto.tipo_producto == 'envasado' %}selected{% endif %}>Envasado</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group-checkbox">
+                <input type="checkbox" id="tiene_variantes" name="tiene_variantes" {% if producto.tiene_variantes %}checked{% endif %}>
+                <label for="tiene_variantes">Este producto tiene variantes</label>
+            </div>
+
+            <!-- PRECIO BASE -->
+            <div id="seccion-precio-base" class="form-group {% if producto.tiene_variantes %}hidden{% endif %}">
+                <label for="precio_base">Precio (S/)</label>
+                <input type="number" name="precio_base" step="0.01" value="{{ producto.precio_base or '0.00' }}" min="0">
+            </div>
+
+            <!-- VARIANTES -->
+            <div id="seccion-variantes" class="{% if not producto.tiene_variantes %}hidden{% endif %}">
+                <label class="variantes-label">Variantes del Producto</label>
+                <div class="variantes-grid-header">
+                    <span>Nombre</span>
+                    <span>Precio</span>
+                </div>
+                <div id="lista-variantes">
+                    {% for variante in producto.variantes %}
+                    <div class="variante-row">
+                        <input type="text" name="variante_nombre" value="{{ variante.nombre }}" required>
+                        <input type="number" name="variante_precio" value="{{ variante.precio }}" step="0.01" min="0" required>
+                        <button type="button" class="btn-icon danger btn-remove-variante">&times;</button>
+                    </div>
+                    {% endfor %}
+                </div>
+                <button type="button" id="btn-add-variante" class="btn-add-variante">+ Añadir Variante</button>
+            </div>
+            
+            <div class="form-footer">
+                <a href="/panel/productos" class="btn btn-secondary" hx-get="/panel/productos" hx-target="#main-content" hx-push-url="true">Cancelar</a>
+                <button type="submit" id="btn-guardar-cambios" class="btn btn-primary">Guardar Cambios</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ... tu bloque de <div class="form-footer"> ... -->
+
+<!-- === INICIO SCRIPT DEDICADO PARA LA FICHA DE PRODUCTO === -->
+<script>
+    // IIFE para encapsular la lógica de esta página y evitar conflictos globales
+    (function() {
+        // --- 1. SELECCIÓN DE ELEMENTOS DEL DOM ---
+        const form = document.getElementById('form-edit-producto');
+        // Si el formulario no existe, detenemos el script para evitar errores.
+        if (!form) return;
+
+        const checkbox = document.getElementById('tiene_variantes');
+        const seccionPrecio = document.getElementById('seccion-precio-base');
+        const seccionVariantes = document.getElementById('seccion-variantes');
+        const btnAddVariante = document.getElementById('btn-add-variante');
+        const listaVariantes = document.getElementById('lista-variantes');
+        const btnGuardar = document.querySelector('.form-footer .btn-primary'); // Selector más robusto
+
+        // --- 2. LÓGICA DE INTERACTIVIDAD DE LA INTERFAZ ---
+
+        // Función para mostrar/ocultar las secciones de precio y variantes
+        function toggleVariantes() {
+            const tieneVariantes = checkbox.checked;
+            seccionPrecio.classList.toggle('hidden', tieneVariantes);
+            seccionVariantes.classList.toggle('hidden', !tieneVariantes);
+        }
+        // Asignamos la función al evento 'change' del checkbox
+        checkbox.addEventListener('change', toggleVariantes);
+
+        // Función para añadir una nueva fila de variante vacía
+        function agregarFilaVariante() {
+            const row = document.createElement('div');
+            row.className = 'variante-row';
+            row.innerHTML = `
+                <input type="text" name="variante_nombre" placeholder="Nuevo Sabor/Tamaño" required>
+                <input type="number" name="variante_precio" placeholder="S/" step="0.01" min="0" required>
+                <button type="button" class="btn-icon danger btn-remove-variante" aria-label="Eliminar variante">&times;</button>
+            `;
+            listaVariantes.appendChild(row);
+        }
+        // Asignamos la función al evento 'click' del botón "+ Añadir Variante"
+        btnAddVariante.addEventListener('click', agregarFilaVariante);
+
+        // Usamos delegación de eventos para manejar la eliminación de filas de variantes
+        listaVariantes.addEventListener('click', function(e) {
+            if (e.target && e.target.classList.contains('btn-remove-variante')) {
+                // remove() es más moderno y simple que .parentNode.removeChild()
+                e.target.closest('.variante-row').remove();
+            }
+        });
+
+        // --- 3. LÓGICA PARA GUARDAR LOS CAMBIOS ---
+
+        // Asignamos la lógica de guardado al botón "Guardar Cambios"
+        btnGuardar.addEventListener('click', function(event) {
+            event.preventDefault(); // Prevenimos el envío tradicional del formulario
+
+            // Validamos el formulario antes de enviar
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            // Recolectamos todos los datos del formulario en un objeto JSON
+            const formData = new FormData(form);
+            const productoData = {
+                nombre: formData.get('nombre'),
+                categoria_id: parseInt(formData.get('categoria_id')),
+                tipo_producto: formData.get('tipo_producto'),
+                tiene_variantes: checkbox.checked,
+                // Leemos los campos que podrían estar ocultos
+                precio_base: parseFloat(form.querySelector('input[name="precio_base"]').value) || 0,
+                descripcion: form.querySelector('textarea[name="descripcion"]').value,
+                sku: form.querySelector('input[name="sku"]').value,
+                variantes: []
+            };
+
+            // Si tiene variantes, recolectamos los datos de cada fila
+            if (productoData.tiene_variantes) {
+                const nombres = form.querySelectorAll('input[name="variante_nombre"]');
+                const precios = form.querySelectorAll('input[name="variante_precio"]');
+                
+                for (let i = 0; i < nombres.length; i++) {
+                    productoData.variantes.push({
+                        nombre: nombres[i].value,
+                        precio: parseFloat(precios[i].value)
+                    });
+                }
+            }
+            
+            // Construimos la URL del endpoint PUT usando el ID del producto
+            const productoId = form.dataset.productoId;
+            const url = `/panel/productos/${productoId}`;
+
+            // Realizamos la petición PUT a nuestra API
+            fetch(url, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(productoData)
+            })
+            .then(response => {
+                // Si la respuesta es una redirección, el navegador la seguirá.
+                // Si HTMX está manejando esto, buscará la cabecera HX-Redirect.
+                if (response.redirected) {
+                    window.location.href = response.url;
+                } else if (!response.ok) {
+                    return response.json().then(err => { throw new Error(err.detail || 'Error del servidor') });
+                }
+            })
+            .catch(error => {
+                console.error('Error al guardar:', error);
+                alert(`Hubo un error al guardar los cambios: ${error.message}`);
+            });
+        });
+    })();
+</script>
+
+{% endblock %}

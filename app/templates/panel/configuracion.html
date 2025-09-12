@@ -1,0 +1,61 @@
+{% extends "panel/panel_base.html" %}
+
+{% block title %}Configuración del Negocio{% endblock %}
+
+{% block head_extra %}
+  <link rel="stylesheet" href="/static/css/panel_configuracion.css">
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Configuración</h1>
+</div>
+
+<div class="form-container">
+    <form id="config-form">
+        <div class="form-section">
+            <h2>Datos del Negocio</h2>
+            <div class="input-group">
+                <label for="ruc">RUC</label>
+                <input type="text" id="ruc" name="ruc" readonly>
+            </div>
+            <div class="input-group">
+                <label for="razon_social">Razón Social</label>
+                <input type="text" id="razon_social" name="razon_social" readonly>
+            </div>
+            <div class="input-group">
+                <label for="nombre_comercial">Nombre Comercial</label>
+                <input type="text" id="nombre_comercial" name="nombre_comercial" required>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h2>Operaciones</h2>
+            <div class="input-group">
+                <label for="modo_cobro">Modo de Cobro Principal</label>
+                <select id="modo_cobro" name="modo_cobro">
+                    <option value="POSTPAGO">Servir y luego Cobrar (Restaurante)</option>
+                    <option value="PREPAGO">Cobrar para Servir (Discoteca/Bar)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h2>Personalización de Marca</h2>
+            <div class="input-group">
+                <label>Tema Visual</label>
+                <div id="theme-gallery" class="theme-gallery">
+                    <!-- Los temas se cargarán aquí -->
+                </div>
+                <input type="hidden" id="tema_id" name="tema_id">
+            </div>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/panel/configuracion.js"></script>
+{% endblock %}

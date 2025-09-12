@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KDS - {{ centro_produccion.nombre }}</title>
+    <link rel="stylesheet" href="/static/css/kds.css">
+</head>
+<body>
+    <div id="audio-unlock-overlay" class="audio-unlock-overlay"><h1>Toca para activar el monitor</h1></div>
+
+    <div class="kds-grid-container">
+        <header class="kds-header">
+            <div class="header-info">
+                <h1>{{ current_user.negocio.nombre_comercial }}</h1>
+                <p>{{ local_usuario.nombre }} - Monitor de {{ centro_produccion.nombre }}</p>
+            </div>
+            <div class="kds-tabs">
+                <button class="tab-button active" data-view="pendientes">Pendientes</button>
+                <button class="tab-button" data-view="completados">Completados Hoy</button>
+            </div>
+            <div id="status-indicator" class="status-indicator">Desconectado</div>
+        </header>
+
+        <main class="kds-main">
+            <div id="vista-pendientes" class="comandas-grid active-view"></div>
+            <div id="vista-completados" class="comandas-grid"></div>
+        </main>
+
+        <aside class="kds-sidebar">
+            <div class="sidebar-widget">
+                <h2>Pedidos con Mayor Espera</h2>
+                <div id="pedidos-espera-container" class="pedidos-espera-container">
+                    <p class="no-pedidos-espera">Actualizando...</p>
+                </div>
+            </div>
+        </aside>
+
+        <footer class="kds-footer">
+            <p>Powered by <a href="https://sirveme1.com" target="_blank">Sirveme1.com</a></p>
+        </footer>
+    </div>
+    
+    <script src="/static/js/kds.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.inicializarKDS) {
+                inicializarKDS("{{ centro_produccion.id }}");
+            }
+        });
+    </script>
+</body>
+</html>

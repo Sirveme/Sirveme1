@@ -1,0 +1,17 @@
+<!-- app/templates/panel/productos/fila_producto_con_variantes.html -->
+{% if producto.tiene_variantes %}
+    {% for variante in producto.variantes %}
+    <tr>
+        <td>{{ producto.nombre }} <span class="variante-name">({{ variante.nombre }})</span></td>
+        <td>{{ producto.categoria.nombre }}</td>
+        <td>S/ {{ "%.2f"|format(variante.precio) }}</td>
+        <td><span class="badge success">Activo</span></td>
+        <td class="actions">
+            <!-- INCLUIMOS EL COMPONENTE DE ACCIONES -->
+            {% include "panel/productos/_componente_acciones.html" %}
+        </td>
+    </tr>
+    {% endfor %}
+{% else %}
+    {% include "panel/productos/fila_producto.html" %}
+{% endif %}

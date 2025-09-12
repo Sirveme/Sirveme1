@@ -1,0 +1,11 @@
+<!-- app/templates/panel/productos/fila_producto.html -->
+<tr>
+    <td>{{ producto.nombre }}</td>
+    <td>{{ producto.categoria.nombre }}</td>
+    <td>S/ {{ "%.2f"|format(producto.precio_base) }}</td>
+    <td><span class="badge success">Activo</span></td>
+    <td class="actions">
+        <!-- INCLUIMOS EL COMPONENTE DE ACCIONES -->
+        {% include "panel/productos/_componente_acciones.html" %}
+    </td>
+</tr>

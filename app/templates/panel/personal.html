@@ -1,0 +1,96 @@
+{% extends "panel/panel_base.html" %}
+
+{% block title %}Gestión de Personal{% endblock %}
+
+{% block head_extra %}
+    <link rel="stylesheet" href="/static/css/panel_personal.css">
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Gestión de Personal</h1>
+    <button id="btn-nuevo-empleado" class="btn btn-primary">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        <span>Añadir Empleado</span>
+    </button>
+</div>
+
+<div class="table-container">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Nombre Completo</th>
+                <th>Documento</th>
+                <th>Rol</th>
+                <th>Sueldo Base (S/)</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="personal-table-body">
+            <!-- Las filas se insertarán aquí dinámicamente -->
+        </tbody>
+    </table>
+</div>
+
+<div class="modal-wrapper" id="modal-empleado">
+    <div class="modal-content">
+        <h3 id="modal-title">Añadir Nuevo Empleado</h3>
+        <form id="form-empleado" novalidate>
+            <div class="input-group">
+                <label for="nombre_completo">Nombre Completo</label>
+                <input type="text" id="nombre_completo" name="nombre_completo" required>
+            </div>
+            <div class="input-group">
+                <label for="numero_documento">N° Documento (DNI)</label>
+                <input type="text" id="numero_documento" name="numero_documento" required>
+            </div>
+            <div class="input-group">
+                <label for="telefono">Teléfono</label>
+                <input type="tel" id="telefono" name="telefono" required>
+            </div>
+            <div class="input-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+
+            <div class="input-group">
+                <label for="local_asignado_id">Asignar a Local</label>
+                <select id="local_asignado_id" name="local_asignado_id" required></select>
+            </div>
+
+            <div class="input-group">
+                <label for="rol_id">Rol</label>
+                <select id="rol_id" name="rol_id" required></select>
+            </div>
+            <div class="input-group">
+                <label for="sueldo_base">Sueldo Base (S/)</label>
+                <input type="number" id="sueldo_base" name="sueldo_base" step="0.01" placeholder="0.00">
+            </div>
+            
+            <!-- === CAMPO DE CONTRASEÑA CON "OJO" === -->
+            <div class="input-group">
+                <label for="password">Contraseña Inicial</label>
+                <div class="password-wrapper">
+                    <input type="password" id="password" name="password" required>
+                    <button type="button" class="toggle-password" id="toggle-password">
+                    <!-- Icono Ojo Abierto -->
+                    <svg class="eye-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                    <!-- Icono Ojo Cerrado -->
+                    <svg class="eye-off-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="display: none;"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.243 4.243L6.228 6.228" /></svg>
+                </button>
+                </div>
+            </div>
+            
+            <div id="modal-error-message" class="error-message"></div>
+            <div class="modal-actions">
+                <button type="button" id="btn-cancelar-modal" class="btn-secondary btn">Cancelar</button>
+                <button type="submit" class="btn-primary btn">Guardar Empleado</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+    <script src="/static/js/panel/personal.js"></script>
+{% endblock %}

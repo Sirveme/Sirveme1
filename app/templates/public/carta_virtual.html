@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carta de {{ negocio.nombre_comercial }}</title>
+    <link rel="stylesheet" href="/static/css/carta_virtual.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="main-container">
+        <header class="carta-header">
+            <img src="{{ brand_config.logo_url }}" alt="Logo" class="logo">
+            <h1>{{ negocio.nombre_comercial }}</h1>
+            <button id="theme-toggle-btn" class="theme-toggle">🌙</button>
+        </header>
+        <div class="chat-input-bar">
+            <input type="text" id="chat-text-input" placeholder="Ingresa tu pedido aquí...">
+            <button class="mic-button" id="mic-button">
+                <svg class="mic-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 18.75a6 6 0 006-6v-1.5a6 6 0 00-12 0v1.5a6 6 0 006 6zM12 2.25a.75.75 0 01.75.75v6a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM5.25 12.75a.75.75 0 01.75-.75h12a.75.75 0 010 1.5H6a.75.75 0 01-.75-.75zM12 15a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 0112 15z"></path></svg>
+            </button>
+        </div>
+        <p class="menu-link-container"><a href="#" id="ver-menu-link">Ver menú completo</a></p>
+        <main class="order-main-view" id="order-main-view">
+            <div class="carrito-container" id="carrito-container"></div>
+            <div class="intro-placeholder" id="intro-placeholder"><p>Aquí aparecerán tus pedidos</p></div>
+        </main>
+        <footer class="carrito-footer" id="carrito-footer">
+            <div class="carrito-summary">
+                <span class="summary-text"><strong id="carrito-cantidad">0</strong> items</span>
+                <div class="carrito-total"><span>Total:</span><strong id="carrito-total">S/ 0.00</strong></div>
+            </div>
+            <button type="button" class="btn-confirmar" id="btn-confirmar-pedido">Confirmar Pedido</button>
+        </footer>
+    </div>
+    <section class="menu-section-wrapper" id="menu-section">
+        <div class="menu-header">
+            <a href="#" class="close-menu-btn" id="close-menu-btn">&times; Ocultar menú</a>
+        </div>
+        <nav class="category-nav">
+            {% for categoria in categorias %}
+                <a href="#categoria-{{ categoria.id }}">{{ categoria.nombre }}</a>
+            {% endfor %}
+        </nav>
+        <div class="menu-container">
+            <!-- Contenido del menú se renderiza aquí -->
+        </div>
+    </section>
+    
+    <div id="toast-notification" class="toast"></div>
+    <div class="modal-wrapper" id="modal-aclaracion"></div>
+
+    <!-- *** ¡HTML FALTANTE AÑADIDO! *** -->
+    <div class="modal-wrapper" id="modal-pasarela">
+        <div class="modal-content">
+            <h3>Simulación de Pasarela de Pago</h3>
+            <p>Tu pedido requiere pago para ser enviado a cocina.</p>
+            <div class="resumen-pago">
+                <span>Total a Pagar:</span>
+                <strong id="monto-pago-simulado">S/ 0.00</strong>
+            </div>
+            <div class="modal-actions">
+                <button type="button" id="btn-pago-fallido" class="btn-secondary">Simular Pago Fallido</button>
+                <button type="button" id="btn-pago-exitoso" class="btn-primary">Simular Pago Exitoso</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/carta_virtual.js"></script>
+</body>
+</html>

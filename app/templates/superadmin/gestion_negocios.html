@@ -1,0 +1,84 @@
+{% extends "panel/base.html" %}
+
+{% block title %}Gestión de Negocios{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Gestión de Negocios</h1>
+    <button id="btn-nuevo-negocio" class="btn btn-primary">Añadir Nuevo Negocio</button>
+</div>
+
+<div class="table-container">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>RUC</th>
+                <th>Razón Social</th>
+                <th>Nombre Comercial</th>
+                <th>Activo</th>
+            </tr>
+        </thead>
+        <tbody id="negocios-table-body">
+            <!-- Las filas se insertarán aquí dinámicamente -->
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal para añadir/editar negocio -->
+<div class="modal-wrapper" id="modal-negocio">
+    <div class="modal-content">
+        <h3 id="modal-title">Añadir Nuevo Negocio</h3>
+        <form id="form-negocio">
+            <div class="input-group">
+                <label for="ruc">RUC</label>
+                <div class="ruc-wrapper">
+                    <input type="text" id="ruc" name="ruc" required>
+                    <button type="button" id="btn-validar-ruc" class="btn-secondary">Validar</button>
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="razon_social">Razón Social</label>
+                <input type="text" id="razon_social" name="razon_social" required readonly>
+            </div>
+            <div class="input-group">
+                <label for="nombre_comercial">Nombre Comercial</label>
+                <input type="text" id="nombre_comercial" name="nombre_comercial" required>
+            </div>
+            <hr>
+            <h4>Datos del Usuario Dueño</h4>
+            <div class="input-group">
+                <label for="dueño-nombre">Nombre Completo del Dueño</label>
+                <input type="text" id="dueño-nombre" name="dueño-nombre_completo" required>
+            </div>
+             <div class="input-group">
+                <label for="dueño-doc">N° Documento del Dueño</label>
+                <input type="text" id="dueño-doc" name="dueño-numero_documento" required>
+            </div>
+            <div class="input-group">
+                <label for="dueño-email">Email del Dueño</label>
+                <input type="email" id="dueño-email" name="dueño-email" required>
+            </div>
+             <div class="input-group">
+                <label for="dueño-telefono">Teléfono del Dueño</label>
+                <input type="tel" id="dueño-telefono" name="dueño-telefono" required>
+            </div>
+             <div class="input-group">
+                <label for="dueño-password">Contraseña Inicial</label>
+                <input type="password" id="dueño-password" name="dueño-password" required>
+            </div>
+            
+            <div id="modal-error-message" class="error-message"></div>
+
+            <div class="modal-actions">
+                <button type="button" id="btn-cancelar-modal" class="btn-secondary">Cancelar</button>
+                <button type="submit" class="btn-primary">Guardar Negocio</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="/static/js/superadmin/gestion_negocios.js"></script>
+{% endblock %}

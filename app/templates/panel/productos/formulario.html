@@ -1,0 +1,146 @@
+<div class="modal-content">
+    <div class="modal-header">
+        <h2>Añadir Nuevo Producto (Paso 1 de 2)</h2>
+        <button class="close-modal-btn">&times;</button>
+    </div>
+    <form id="form-producto-rapido">
+        <!-- TIPO DE PRODUCTO -->
+        <div class="form-group">
+            <label>Tipo de Producto</label>
+            <div class="segmented-control">
+                <input type="radio" id="tipo_preparado" name="tipo_producto" value="preparado" checked>
+                <label for="tipo_preparado">Preparado</label>
+                <input type="radio" id="tipo_envasado" name="tipo_producto" value="envasado">
+                <label for="tipo_envasado">Envasado</label>
+            </div>
+        </div>
+
+        <!-- NOMBRE Y CATEGORÍA -->
+        <div class="form-row">
+            <div class="form-group">
+                <label for="nombre">Nombre del Producto</label>
+                <input type="text" id="nombre" name="nombre" required>
+            </div>
+            <div class="form-group">
+                <label for="categoria_id">Categoría</label>
+                <select id="categoria_id" name="categoria_id" required>
+                    <option value="" disabled selected>Selecciona</option>
+                    {% for categoria in categorias %}
+                        <option value="{{ categoria.id }}">{{ categoria.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <!-- CHECKBOX DE VARIANTES -->
+        <div class="form-group-checkbox">
+            <input type="checkbox" id="tiene_variantes" name="tiene_variantes"
+                   _="on change toggle .hidden on #seccion-precio-base then toggle .hidden on #seccion-variantes">
+            <label for="tiene_variantes">Este producto tiene diferentes tamaños o presentaciones (variantes)</label>
+        </div>
+
+        <!-- SECCIÓN PRECIO BASE (Visible por defecto) -->
+        <div id="seccion-precio-base">
+            <div class="form-group">
+                <label for="precio_base">Precio de Venta (S/)</label>
+                <input type="number" id="precio_base" name="precio_base" step="0.01" required>
+            </div>
+        </div>
+
+        <!-- SECCIÓN VARIANTES (Oculta por defecto) -->
+        <div id="seccion-variantes" class="hidden">
+            <div class="variantes-header">
+                <span>Nombre de Variante</span>
+                <span>Precio (S/)</span>
+                <span></span> <!-- Columna vacía para el botón X -->
+            </div>
+            <div id="lista-variantes">
+                <!-- Filas de variantes se añadirán aquí -->
+            </div>
+            <button type="button" class="btn-add-variante" id="btn-add-variante">+ Añadir Variante</button>
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary close-modal-btn">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Guardar y Continuar</button>
+        </div>
+    </form>
+</div>
+
+<!-- Plantilla para una nueva fila de variante -->
+<template id="template-variante">
+    <div class="variante-row">
+        <input type="text" name="variante_nombre" placeholder="Ej: Personal 500ml" required>
+        <input type="number" name="variante_precio" placeholder="Precio" step="0.01" required>
+        <button type="button" class="btn-icon danger remove-variante-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.58.22-2.365.468a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25-.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z" clip-rule="evenodd" /></svg>
+        </button>
+    </div>
+</template>
+
+<!-- Script de lógica del formulario -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('form-producto-rapido');
+        const listaVariantes = document.getElementById('lista-variantes');
+        const templateVariante = document.getElementById('template-variante');
+        const btnAddVariante = document.getElementById('btn-add-variante');
+        const inputPrecioBase = document.getElementById('precio_base');
+        const checkTieneVariantes = document.getElementById('tiene_variantes');
+
+        // Habilitar/deshabilitar precio base
+        checkTieneVariantes.addEventListener('change', function() {
+            inputPrecioBase.required = !this.checked;
+        });
+
+        // Añadir fila de variante
+        btnAddVariante.addEventListener('click', function() {
+            const clone = templateVariante.content.cloneNode(true);
+            listaVariantes.appendChild(clone);
+        });
+
+        // Eliminar fila de variante (usando delegación de eventos)
+        listaVariantes.addEventListener('click', function(event) {
+            if (event.target.closest('.remove-variante-btn')) {
+                event.target.closest('.variante-row').remove();
+            }
+        });
+
+        // Envío del formulario con HTMX
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(form);
+            const productoData = {
+                nombre: formData.get('nombre'),
+                categoria_id: parseInt(formData.get('categoria_id')),
+                tipo_producto: formData.get('tipo_producto'),
+                tiene_variantes: checkTieneVariantes.checked
+            };
+
+            if (productoData.tiene_variantes) {
+                productoData.variantes = [];
+                const nombres = form.querySelectorAll('input[name="variante_nombre"]');
+                const precios = form.querySelectorAll('input[name="variante_precio"]');
+                for (let i = 0; i < nombres.length; i++) {
+                    productoData.variantes.push({
+                        nombre: nombres[i].value,
+                        precio: parseFloat(precios[i].value)
+                    });
+                }
+            } else {
+                productoData.precio_base = parseFloat(formData.get('precio_base'));
+            }
+            
+            // Usamos htmx.ajax para enviar el JSON
+            htmx.ajax('POST', '/panel/productos', {
+                headers: {'Content-Type': 'application/json'},
+                values: JSON.stringify(productoData),
+                target: 'tbody',
+                swap: 'beforeend'
+            }).then(() => {
+                // Cierra el modal en caso de éxito
+                document.getElementById('modal-container').innerHTML = '';
+            });
+        });
+    });
+</script>

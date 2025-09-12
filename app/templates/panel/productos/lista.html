@@ -1,0 +1,70 @@
+<!-- app/templates/panel/productos/lista.html -->
+<div class="header">
+    <h1>Gestión de Productos</h1>
+    <p>Añade, edita y organiza los productos de tu menú.</p>
+</div>
+
+<div class="toolbar">
+    <button class="btn btn-primary"
+        hx-get="/panel/productos/nuevo"
+        hx-target="#modal-container"
+        hx-swap="innerHTML">
+        Añadir Nuevo Producto
+    </button>
+</div>
+
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Categoría</th>
+                <th>Precio</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for producto in productos %}
+                {% if producto.tiene_variantes %}
+                    {% for variante in producto.variantes %}
+                    <!-- Fila para una variante -->
+                    <tr>
+                        <td>{{ producto.nombre }} <span class="variante-name">({{ variante.nombre }})</span></td>
+                        <td>{{ producto.categoria.nombre }}</td>
+                        <td>S/ {{ "%.2f"|format(variante.precio) }}</td>
+                        <td><span class="badge success">Activo</span></td>
+                        <td class="actions">
+                            <!-- Botones apuntando al producto PADRE -->
+                            <button class="btn-icon" title="Editar Producto Padre" hx-get="/panel/productos/{{ producto.id }}/editar" hx-target="#main-content" hx-swap="innerHTML" hx-push-url="true">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M5.433 13.917l1.262-3.155A4 4 0 017.58 9.42l6.92-6.918a2.121 2.121 0 013 3L11.742 12a4 4 0 01-1.33 1.33l-3.154 1.262a.5.5 0 01-.65-.65z" /><path d="M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0010 3H4.75A2.75 2.75 0 002 5.75v9.5A2.75 2.75 0 004.75 18h9.5A2.75 2.75 0 0017 15.25V10a.75.75 0 00-1.5 0v5.25c0 .69-.56 1.25-1.25-1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5z" /></svg>
+                            </button>
+                            <button class="btn-icon danger" title="Eliminar Producto Padre">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.58.22-2.365.468a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25-.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z" clip-rule="evenodd" /></svg>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                <!-- Fila para un producto simple -->
+                <tr>
+                    <td>{{ producto.nombre }}</td>
+                    <td>{{ producto.categoria.nombre }}</td>
+                    <td>S/ {{ "%.2f"|format(producto.precio_base) }}</td>
+                    <td><span class="badge success">Activo</span></td>
+                    <td class="actions">
+                        <button class="btn-icon" title="Editar" hx-get="/panel/productos/{{ producto.id }}/editar" hx-target="#main-content" hx-swap="innerHTML" hx-push-url="true">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M5.433 13.917l1.262-3.155A4 4 0 017.58 9.42l6.92-6.918a2.121 2.121 0 013 3L11.742 12a4 4 0 01-1.33 1.33l-3.154 1.262a.5.5 0 01-.65-.65z" /><path d="M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0010 3H4.75A2.75 2.75 0 002 5.75v9.5A2.75 2.75 0 004.75 18h9.5A2.75 2.75 0 0017 15.25V10a.75.75 0 00-1.5 0v5.25c0 .69-.56 1.25-1.25-1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5z" /></svg>
+                        </button>
+                        <button class="btn-icon danger" title="Eliminar">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.58.22-2.365.468a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25-.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z" clip-rule="evenodd" /></svg>
+                        </button>
+                    </td>
+                </tr>
+                {% endif %}
+            {% else %}
+                <tr><td colspan="5" class="empty-state">No hay productos. ¡Añade el primero!</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

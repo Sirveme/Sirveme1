@@ -1,0 +1,1 @@
+# Aquí irán los schemas de Pydantic

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plan de Desarrollo y Acuerdos - Proyecto SAAS Comercial</title>
+    <style>
+        /* --- Estilos Generales --- */
+        :root {
+            --color-primario: #005A9C;
+            --color-secundario: #00A3E0;
+            --color-fondo: #f4f7fa;
+            --color-texto: #333;
+            --color-borde: #dce3e9;
+            --color-blanco: #fff;
+            --sombra-suave: 0 4px 8px rgba(0,0,0,0.05);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            background-color: var(--color-fondo);
+            color: var(--color-texto);
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        h1, h2, h3, h4 {
+            color: var(--color-primario);
+            line-height: 1.2;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+
+        h2 {
+            border-bottom: 2px solid var(--color-secundario);
+            padding-bottom: 10px;
+            margin-top: 40px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        strong {
+            color: var(--color-primario);
+        }
+
+        /* --- Estructura de Tarjetas (Cards) --- */
+        .card {
+            background-color: var(--color-blanco);
+            border: 1px solid var(--color-borde);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--sombra-suave);
+        }
+
+        /* --- Guía de Aprendizaje (Colapsable) --- */
+        .module-header {
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background-color: #eef5f9;
+            border-radius: 6px;
+            transition: background-color 0.3s;
+        }
+
+        .module-header:hover {
+            background-color: #dceaf3;
+        }
+
+        .module-header h3 {
+            margin: 0;
+            color: var(--color-primario);
+        }
+
+        .toggle-icon {
+            font-size: 1.5em;
+            font-weight: bold;
+            transition: transform 0.3s;
+        }
+
+        .module-header.active .toggle-icon {
+            transform: rotate(45deg);
+        }
+
+        .module-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out;
+            padding: 0 15px;
+            border-left: 3px solid var(--color-secundario);
+            margin-left: 10px;
+        }
+
+        .module-content ul {
+            padding-left: 20px;
+            list-style-type: disc;
+        }
+
+        /* --- Bitácora de Acuerdos --- */
+        .log-entry {
+            border-left: 4px solid var(--color-primario);
+            padding-left: 20px;
+        }
+
+        .log-entry .date {
+            font-weight: bold;
+            font-size: 1.2em;
+            color: var(--color-texto);
+        }
+        
+        .log-entry .clarification-note {
+            background-color: #fffbe6;
+            border: 1px solid #ffe58f;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Plan de Desarrollo y Acuerdos<br>Proyecto SAAS Comercial</h1>
+
+        <!-- ====================================================== -->
+        <!-- 1. GUÍA DE APRENDIZAJE PARA EL PROGRAMADOR (VISUAL FOXPRO) -->
+        <!-- ====================================================== -->
+        <section id="learning-path">
+            <h2>Guía de Aprendizaje para el Programador</h2>
+            <p>Temas clave a revisar para la transición de Visual FoxPro al stack tecnológico moderno, organizados por módulo del proyecto.</p>
+
+            <div class="card">
+                <div class="module-header">
+                    <h3>Fase 0: Fundamentos y Stack Moderno</h3>
+                    <span class="toggle-icon">+</span>
+                </div>
+                <div class="module-content">
+                    <ul>
+                        <li><strong>Paradigma Web (Request/Response):</strong> Comprender que, a diferencia de una app de escritorio, la web es "sin estado". Cada interacción es una petición nueva. El backend no "recuerda" al usuario entre peticiones sin un mecanismo como los tokens.</li>
+                        <li><strong>APIs REST:</strong> Asimilar que el backend (FastAPI) y el frontend (HTMX/JS) son entidades separadas que se comunican a través de un "lenguaje" estructurado (JSON) sobre HTTP. Es el equivalente moderno a llamar a funciones de una librería (DLL), pero a través de la red.</li>
+                        <li><strong>ORM (SQLAlchemy):</strong> Abstraer la idea de escribir SQL directo (`SELECT * FROM...`) a manipular "objetos" en Python que representan las tablas. El ORM traduce Python a SQL. Beneficio: portabilidad de la base de datos y mayor seguridad (previene inyección SQL).</li>
+                        <li><strong>Control de Versiones con Git:</strong> Adoptar la disciplina de `commit`, `push`, `pull` y ramas. Es un cambio fundamental frente a guardar copias de carpetas (`Proyecto_V1`, `Proyecto_V2_final`). Permite trabajo colaborativo y un historial de cambios robusto.</li>
+                        <li><strong>Entornos Virtuales de Python:</strong> Entender por qué las dependencias de cada proyecto deben estar aisladas. Es el equivalente a tener un conjunto separado de librerías para cada aplicación, evitando conflictos.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="module-header">
+                    <h3>Módulo 1: Inventario, Multi-Tenancy y Seguridad</h3>
+                    <span class="toggle-icon">+</span>
+                </div>
+                <div class="module-content">
+                    <ul>
+                        <li><strong>Modelado de Datos Relacional Moderno:</strong> Revisar conceptos de claves foráneas, índices y normalización en PostgreSQL. Planificar relaciones complejas como "un producto con múltiples presentaciones y múltiples precios".</li>
+                        <li><strong>Validación de Datos con Pydantic:</strong> Entender que la validación de datos de entrada no se hace manualmente en el formulario, sino en el "borde" de la API. Pydantic define reglas estrictas sobre qué datos son aceptables, garantizando la integridad antes de que toquen la lógica de negocio.</li>
+                        <li><strong>Migraciones de Base de Datos (Alembic):</strong> Comprender que los cambios en la estructura de la base de datos (añadir una columna, crear una tabla) se gestionan como código versionado. Esto permite aplicar y revertir cambios de forma segura en diferentes entornos (desarrollo, producción).</li>
+                        <li><strong>Autenticación con Tokens (JWT):</strong> Asimilar el flujo de login que genera un "ticket" (token) firmado digitalmente. Este ticket se envía en cada petición para demostrar quién eres, reemplazando la necesidad de enviar usuario/contraseña constantemente.</li>
+                        <li><strong>Middleware en FastAPI:</strong> Aprender este poderoso concepto que permite ejecutar código en cada petición que llega al servidor. Es ideal para verificar la autenticación, registrar logs, gestionar sesiones, etc., de forma centralizada.</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="module-header">
+                    <h3>Módulo 2: Flujos de Venta y Operaciones</h3>
+                    <span class="toggle-icon">+</span>
+                </div>
+                <div class="module-content">
+                    <ul>
+                        <li><strong>Interactividad con HTMX:</strong> El cambio de mentalidad más grande en el frontend. En lugar de que JavaScript pida datos (JSON) y luego construya el HTML en el navegador, el servidor envía directamente pequeños fragmentos de HTML ya renderizados para reemplazar partes de la página. Es un modelo más cercano a como funcionaba la web antes de los grandes frameworks de JS, pero con la reactividad moderna.</li>
+                        <li><strong>Transacciones Atómicas (ACID):</strong> Aunque el concepto es el mismo que en VFP, revisar cómo SQLAlchemy gestiona las sesiones y el `commit/rollback` es crucial. Una venta debe ser una transacción atómica: o se registra la venta, se descuenta el stock y se actualiza la caja, o no se hace nada.</li>
+                        <li><strong>Diseño "Mobile-First":</strong> Practicar la creación de interfaces que se vean y funcionen bien en pantallas pequeñas (tablets/celulares) primero, y luego se adapten a las grandes. Esto se logra con CSS (Flexbox, Grid, Media Queries).</li>
+                    </ul>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ====================================================== -->
+        <!-- 2. BITÁCORA DE ACUERDOS DEL PROYECTO                   -->
+        <!-- ====================================================== -->
+        <section id="project-log">
+            <h2>Bitácora de Acuerdos del Proyecto</h2>
+            
+            <div class="card log-entry">
+                <p class="date">Acuerdos del 10 de septiembre de 2025</p>
+
+                <h4>A. SEGURIDAD Y CONTROL DE INFORMACIÓN</h4>
+                <ul>
+                    <li><strong>Descargas y Reportes:</strong> Se controlará el destino y el permiso para las opciones de descarga de datos (CSV, Excel) y la generación de reportes en PDF. El objetivo es evitar la exportación masiva y no autorizada de información sensible (listas de clientes, precios de costo).</li>
+                    <li><strong>Paginación y Anti-Copiado:</strong> Todas las consultas, filtros y reportes en pantalla serán paginados por defecto para limitar la cantidad de datos expuestos a la vez. Se investigará la viabilidad técnica de inhibir funciones de copiado (CTRL+C) en tablas de datos críticas, aunque se reconoce que es una medida disuasoria, no infalible.</li>
+                    <li><strong>Auditoría Detallada:</strong> Se implementará un sistema de logs (bitácora) que registrará acciones clave, respondiendo a las preguntas: <strong>¿Quién?</strong> (usuario/operador), <strong>¿Qué?</strong> (acción, ej: "anuló venta #123"), <strong>¿Para Qué?</strong> (recurso afectado, ej: "cliente XYZ"), <strong>¿Por Qué?</strong> (campo opcional de justificación para acciones críticas) y <strong>¿Cuándo?</strong> (timestamp).</li>
+                </ul>
+
+                <h4>B. ROLES Y PERMISOS</h4>
+                <ul>
+                    <li><strong>Principio de Realismo:</strong> El sistema de permisos se diseñará para adaptarse a las prácticas comunes del comercio, como el uso de una misma estación por varios operadores, priorizando la agilidad sin sacrificar la responsabilidad.</li>
+                    <li><strong>Granularidad:</strong> Se definirá un sistema de permisos granular que permitirá habilitar o deshabilitar rutas de la API, funciones específicas (ej: "aplicar descuento") u opciones de menú a nivel de Rol.</li>
+                    <li><strong>Roles Flexibles:</strong> Cada usuario tendrá un Rol principal por defecto (Ej: "Cajero", "Bodeguero"), pero se podrán añadir permisos específicos de otros roles para crear perfiles híbridos sin necesidad de crear decenas de roles nuevos.</li>
+                </ul>
+
+                <h4>C. FLUJOS DE VENTA IDENTIFICADOS</h4>
+                <ul>
+                    <li><strong>Flujo 1 - Caja Central:</strong> Múltiples terminales (POS) generan "pre-ventas" que se envían a una cola. Una única Caja Central visualiza estas pre-ventas, las llama, cobra y finaliza la transacción. La impresión de comprobantes es exclusiva de la Caja Central. La cajera puede devolver una pre-venta para su corrección.
+                        <div class="clarification-note">
+                            <strong>[Decisión Pendiente]:</strong> ¿La Cajera Central podrá anular directamente una pre-venta o solo podrá rechazarla para que el vendedor original la anule? Se recomienda la segunda opción para mantener la responsabilidad.
+                        </div>
+                    </li>
+                    <li><strong>Flujo 2 - Caja Múltiple:</strong> Cada terminal es un POS completo e independiente. Puede crear la pre-venta, cobrarla y finalizarla. Las impresoras pueden ser de red y compartidas, permitiendo que cualquier POS imprima en ellas.</li>
+                    <li><strong>Flujo 3 - Caja Mixta:</strong> Funciona como la Caja Central, pero con la flexibilidad de que los terminales de pre-venta también pueden tener impresoras asociadas (usualmente para imprimir una "comanda" o ticket de pre-venta, no el comprobante fiscal).</li>
+                    <li><strong>Comprobante por Defecto:</strong> En todos los flujos, el comprobante de pago por defecto será la Boleta de Venta, con opción de cambiar a Factura si el cliente lo requiere.</li>
+                </ul>
+            </div>
+            
+            <!-- Aquí se agregarán las futuras entradas de la bitácora -->
+
+        </section>
+    </div>
+
+    <script>
+        // --- Script para funcionalidad colapsable ---
+        document.addEventListener('DOMContentLoaded', function () {
+            const moduleHeaders = document.querySelectorAll('.module-header');
+
+            moduleHeaders.forEach(header => {
+                header.addEventListener('click', function () {
+                    // Alternar la clase 'active' para cambiar el ícono
+                    this.classList.toggle('active');
+
+                    const content = this.nextElementSibling;
+                    // Si el contenido ya está abierto, se cierra (maxHeight = null)
+                    // Si está cerrado, se abre calculando su altura real (scrollHeight)
+                    if (content.style.maxHeight) {
+                        content.style.maxHeight = null;
+                    } else {
+                        content.style.maxHeight = content.scrollHeight + "px";
+                    }
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>
