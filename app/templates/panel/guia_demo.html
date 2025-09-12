@@ -1,0 +1,60 @@
+{% extends "panel/panel_base.html" %}
+
+{% block title %}Guía para la Demo{% endblock %}
+
+{% block head_extra %}
+    <link rel="stylesheet" href="/static/css/guia_demo.css">
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Hoja de Ruta para la Demo</h1>
+    <p class="subtitle">Usa estos enlaces y credenciales para una presentación exitosa.</p>
+</div>
+
+<div class="demo-grid">
+    <!-- SECCIÓN DE USUARIOS -->
+    <div class="demo-card">
+        <h2>Usuarios y Credenciales</h2>
+        <div class="user-item">
+            <h3>Super Administrador</h3>
+            <p><strong>Usuario:</strong> 00000000</p>
+            <p><strong>Clave:</strong> superadmin</p>
+        </div>
+        <div class="user-item">
+            <h3>Dueño "Sabor Criollo"</h3>
+            <p><strong>Usuario:</strong> 12345678</p>
+            <p><strong>Clave:</strong> clave123</p>
+        </div>
+        <div class="user-item">
+            <h3>Dueña "Nieves"</h3>
+            <p><strong>Usuario:</strong> 87654321</p>
+            <p><strong>Clave:</strong> clave123</p>
+        </div>
+        <a href="/login" class="btn btn-secondary" target="_blank">Ir a Login</a>
+    </div>
+
+    <!-- SECCIÓN RESTAURANTE -->
+     <!-- SECCIÓN RESTAURANTE (CORREGIDA) -->
+    <div class="demo-card">
+        <h2>Flujo Restaurante (Sabor Criollo)</h2>
+        <p>Modo: Servir y luego Cobrar (POSTPAGO)</p>
+        <ul>
+            <li><a href="/carta/{{ demo_data.sabor_criollo.slug }}/{{ demo_data.sabor_criollo.zona }}/{{ demo_data.sabor_criollo.mesa }}" target="_blank">Carta Virtual Cliente (Mesa 1)</a></li>
+            <li><a href="/panel/kds/{{ demo_data.sabor_criollo.kds_cocina }}" target="_blank">Monitor de Cocina</a></li>
+            <li><a href="/panel/kds/{{ demo_data.sabor_criollo.kds_barra }}" target="_blank">Monitor de Barra</a></li>
+        </ul>
+    </div>
+
+    <!-- SECCIÓN DISCOTECA (CORREGIDA) -->
+    <div class="demo-card">
+        <h2>Flujo Discoteca (Nieves)</h2>
+        <p>Modo: Cobrar para Servir (PREPAGO)</p>
+        <ul>
+            <li><a href="/carta/{{ demo_data.nieves.slug }}/{{ demo_data.nieves.zona }}/{{ demo_data.nieves.mesa }}" target="_blank">Carta Virtual Cliente (Box 1)</a></li>
+            <li><a href="/panel/kds/{{ demo_data.nieves.kds_caja }}" target="_blank">Monitor de Caja (Cobros)</a></li>
+            <li><a href="/panel/kds/{{ demo_data.nieves.kds_barra }}" target="_blank">Monitor de Barra Principal</a></li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
