@@ -69,3 +69,14 @@ def get_lista_temas(db: Session = Depends(get_db)):
     """
     temas = db.query(modelos_configuracion.Tema).all()
     return temas
+
+
+# === RUTA PARA LA PÁGINA HOME ===
+@router.get("/", response_class=HTMLResponse)
+async def get_home_page(request: Request):
+    """
+    Sirve la nueva página de inicio (landing page).
+    """
+    brand_config = request.state.brand_config
+    context = {"request": request, "brand_config": brand_config}
+    return templates.TemplateResponse("public/home.html", context)
