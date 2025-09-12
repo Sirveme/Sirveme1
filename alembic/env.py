@@ -1,9 +1,7 @@
 import os
 import sys
 from logging.config import fileConfig
-
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+from sqlalchemy import engine_from_config, pool
 
 from alembic import context
 
@@ -12,7 +10,7 @@ from alembic import context
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from app.db.conexion import Base
-from app.db.modelos import * # Importante para que detecte todos los modelos
+from app.db.modelos import modelos_core, modelos_pedidos, modelos_financieros, modelos_operativos, modelos_configuracion, modelos_feedback
 # --- FIN DE MODIFICACIÓN ---
 
 
