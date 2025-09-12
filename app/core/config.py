@@ -17,5 +17,6 @@ class Settings(BaseSettings):
 settings = Settings()
 
 # --- AÑADE ESTA LÍNEA TEMPORALMENTE PARA DEPURAR ---
-print("--- DEBUG: GOOGLE_API_KEY cargada:", settings.GOOGLE_API_KEY)
+#print("--- DEBUG: GOOGLE_API_KEY cargada:", settings.GOOGLE_API_KEY)
+
 # --- FIN DE LA LÍNEA TEMPORAL ---
