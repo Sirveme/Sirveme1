@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sirveme1 - La Carta Virtual Inteligente para tu Negocio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/home.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="container">
+            <div class="logo">
+                <img src="{{ brand_config.logo_url }}" alt="Logo {{ brand_config.brand_name }}">
+                <span>{{ brand_config.brand_name }}</span>
+            </div>
+            <nav class="main-nav">
+                <a href="#beneficios">Beneficios</a>
+                <a href="#oferta">Oferta Fundador</a>
+                <a href="/login" class="btn btn-secondary">Iniciar Sesión</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- Sección Héroe -->
+        <section id="hero" class="hero-section">
+            <div class="container">
+                <div class="hero-content">
+                    <span class="highlight-vibrant">La Revolución de Restaurantes y Discotecas</span>
+                    <h1>Deja que tus Clientes te Pidan con la Voz</h1>
+                    <!-- BENEFICIO POTENTE -->
+                    <p class="hero-benefit">
+                        <strong>¡50% de descuento DE POR VIDA!</strong> Sé uno de nuestros primeros socios y asegura el mejor precio para siempre.
+                    </p>
+                    <!-- LLAMADO A LA ACCIÓN PERSUASIVO -->
+                    <a href="#contacto" class="btn btn-primary btn-cta-animated">
+                        <span>INSCRÍBETE GRATIS</span>
+                        <small>¡Cupos de Fundador Limitados!</small>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección "Demo Reel" -->
+        <section id="demo" class="demo-section">
+            <div class="container">
+                <h2>Ve Sirveme1 en Acción</h2>
+                <p class="subtitle">El pedido perfecto en 40 segundos.</p>
+                <div class="video-gallery">
+                    <div class="video-container" id="video-1-container">
+                        <video id="video-1" src="/static/videos/1_cliente_pide.mp4" muted loop playsinline></video>
+                        <div class="video-overlay"><h3>1. El Cliente Pide</h3></div>
+                    </div>
+                    <div class="video-container" id="video-2-container">
+                        <video id="video-2" src="/static/videos/2_cocina_recibe.mp4" muted loop playsinline></video>
+                        <div class="video-overlay"><h3>2. La Cocina Recibe</h3></div>
+                    </div>
+                    <div class="video-container" id="video-3-container">
+                        <video id="video-3" src="/static/videos/3_barra_prepara.mp4" muted loop playsinline></video>
+                        <div class="video-overlay"><h3>3. La Barra Prepara</h3></div>
+                    </div>
+                    <div class="video-container" id="video-4-container">
+                        <video id="video-4" src="/static/videos/4_cierre_perfecto.mp4" muted loop playsinline></video>
+                        <div class="video-overlay"><h3>4. El Cierre Perfecto</h3></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Aquí irían las otras secciones (Beneficios, Oferta, Contacto) -->
+    </main>
+
+    <script src="/static/js/home.js"></script>
+</body>
+</html>
