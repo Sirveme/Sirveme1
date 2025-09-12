@@ -169,3 +169,62 @@ def get_personal_page(
         "brand_config": brand_config
     }
     return templates.TemplateResponse("panel/personal.html", context)
+
+
+# === RUTA PARA LA GUÍA DE LA DEMO ===
+@router.get("/panel/guia-demo", response_class=HTMLResponse)
+def get_guia_demo_page(
+    request: Request,
+    current_user: modelos_core.Usuario = Depends(get_current_user)
+):
+    """
+    Sirve una página interna con los enlaces y credenciales para la demo.
+    """
+    brand_config = request.state.brand_config
+    
+    demo_data = {
+        "sabor_criollo": {"slug": "Sabor Criollo"},
+        "nieves": {"slug": "Nieves"}
+    }
+
+    db = SessionLocal()
+    try:
+        # --- LÓGICA CORREGIDA Y ROBUSTA ---
+        # IDs para Restaurante "Sabor Criollo"
+        negocio_resto = db.query(modelos_core.Negocio).filter_by(nombre_comercial='Sabor Criollo').first()
+        if negocio_resto:
+            local_resto = db.query(modelos_core.Local).filter_by(negocio_id=negocio_resto.id).first()
+            if local_resto:
+                zona_resto = db.query(modelos_core.Zona).filter_by(local_id=local_resto.id).first()
+                if zona_resto:
+                    mesa_resto = db.query(modelos_core.Mesa).filter_by(zona_id=zona_resto.id).first()
+                    demo_data["sabor_criollo"]["zona"] = zona_resto.id
+                    demo_data["sabor_criollo"]["mesa"] = mesa_resto.id
+
+            demo_data["sabor_criollo"]["kds_cocina"] = db.query(modelos_operativos.CentroProduccion.id).filter_by(nombre='Cocina', negocio_id=negocio_resto.id).scalar()
+            demo_data["sabor_criollo"]["kds_barra"] = db.query(modelos_operativos.CentroProduccion.id).filter_by(nombre='Barra', negocio_id=negocio_resto.id).scalar()
+
+        # IDs para Discoteca "Nieves"
+        negocio_disco = db.query(modelos_core.Negocio).filter_by(nombre_comercial='Nieves').first()
+        if negocio_disco:
+            local_disco = db.query(modelos_core.Local).filter_by(negocio_id=negocio_disco.id).first()
+            if local_disco:
+                zona_disco = db.query(modelos_core.Zona).filter_by(local_id=local_disco.id).first()
+                if zona_disco:
+                    mesa_disco = db.query(modelos_core.Mesa).filter_by(zona_id=zona_disco.id).first()
+                    demo_data["nieves"]["zona"] = zona_disco.id
+                    demo_data["nieves"]["mesa"] = mesa_disco.id
+
+            demo_data["nieves"]["kds_caja"] = db.query(modelos_operativos.CentroProduccion.id).filter_by(nombre='Caja', negocio_id=negocio_disco.id).scalar()
+            demo_data["nieves"]["kds_barra"] = db.query(modelos_operativos.CentroProduccion.id).filter_by(nombre='Barra Principal', negocio_id=negocio_disco.id).scalar()
+
+    finally:
+        db.close()
+
+    context = {
+        "request": request,
+        "brand_config": brand_config,
+        "demo_data": demo_data,
+        "current_user": current_user # <-- DATO AÑADIDO AL CONTEXTO
+    }
+    return templates.TemplateResponse("panel/guia_demo.html", context)
