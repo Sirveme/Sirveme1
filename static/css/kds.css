@@ -1,0 +1,62 @@
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; background-color: #121212; color: #e0e0e0; overflow: hidden; }
+
+.audio-unlock-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.9); color: white; display: flex; align-items: center; justify-content: center; text-align: center; z-index: 100; cursor: pointer; transition: opacity 0.5s; }
+.audio-unlock-overlay.hidden { opacity: 0; pointer-events: none; }
+
+.kds-grid-container { display: grid; grid-template-columns: 1fr 300px; grid-template-rows: auto 1fr; height: 100vh; grid-template-areas: "header sidebar" "main sidebar"; }
+.kds-header { grid-area: header; display: flex; justify-content: space-between; align-items: center; background-color: #000; padding: 0.5rem 1.5rem; border-bottom: 1px solid #333; }
+.kds-header h1 span { color: #ffc107; }
+.kds-main { grid-area: main; position: relative; overflow: hidden; }
+.kds-sidebar { grid-area: sidebar; background-color: #1a1a1a; padding: 1rem; border-left: 1px solid #333; overflow-y: auto; }
+
+.status-indicator { font-weight: bold; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.9rem; margin-left: 1rem; }
+.status-indicator.connected { background-color: #28a745; }
+.status-indicator.disconnected { background-color: #dc3545; }
+
+.kds-tabs { display: flex; gap: 0.5rem; background-color: #2b2b2b; padding: 0.25rem; border-radius: 8px; }
+.tab-button { background: transparent; border: none; color: #a0a0a0; padding: 0.5rem 1rem; font-size: 1rem; font-weight: 500; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
+.tab-button.active { background-color: #007bff; color: white; }
+.tab-button:hover:not(.active) { background-color: #3a3a3a; }
+
+.comandas-grid { display: flex; flex-wrap: wrap; gap: 1rem; padding: 1rem; align-content: flex-start; overflow-x: auto; position: absolute; top: 0; left: 0; width: 100%; height: 100%; transition: opacity 0.3s, transform 0.3s; opacity: 0; transform: scale(0.98); pointer-events: none; }
+
+.comandas-grid.active-view { opacity: 1; transform: scale(1); pointer-events: auto; }
+.comandas-grid::-webkit-scrollbar { height: 12px; }
+.comandas-grid::-webkit-scrollbar-track { background: #222; }
+.comandas-grid::-webkit-scrollbar-thumb { background-color: #555; border-radius: 20px; border: 3px solid #222; }
+
+.comanda { flex: 0 0 320px; background-color: #2b2b2b; border-radius: 8px; border-top: 5px solid #ffc107; padding: 1rem; height: fit-content; box-shadow: 0 4px 15px rgba(0,0,0,0.4); transition: opacity 0.5s ease-out, transform 0.5s ease-out; transform: scale(1); }
+.comanda.agregando { transform: scale(0.9); opacity: 0; }
+.comanda.listo { border-top-color: #28a745; }
+.comanda.ocultando { opacity: 0; transform: scale(0.95); }
+.comanda.completado { border-top-color: #6c757d; }
+.comanda.alerta-cobro { border-top-color: #dc3545; }
+
+.comanda-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #444; padding-bottom: 0.75rem; margin-bottom: 0.75rem; }
+.comanda-header h2 { margin: 0; font-size: 1.2rem; }
+.comanda-header .pedido-id { font-size: 0.8rem; color: #888; }
+.timer, .total-cobrar { font-size: 1.2rem; font-weight: bold; color: #ffc107; }
+.alerta-cobro .total-cobrar { color: #dc3545; }
+
+.comanda-items ul { list-style: none; padding: 0; margin: 0; }
+.comanda-items li { display: flex; padding: 0.75rem 0; font-size: 1.1rem; border-bottom: 1px solid #3a3a3a; }
+.comanda-items li:last-child { border-bottom: none; }
+.item-qty { font-weight: bold; margin-right: 1rem; color: #e0e0e0; }
+.item-name { flex-grow: 1; }
+.item-nota { display: block; font-size: 0.9rem; color: #ffc107; margin-left: 2.5rem; font-style: italic; }
+.alerta-cobro .comanda-items p { margin: 0.5rem 0; font-weight: bold; }
+
+.comanda-footer { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #444; }
+.comanda-footer button { width: 100%; padding: 1rem; font-size: 1.2rem; color: white; border: none; border-radius: 5px; cursor: pointer; transition: background-color 0.2s; }
+.btn-listo { background-color: #007bff; }
+.btn-cobrado { background-color: #dc3545; }
+.comanda.listo button, .comanda.alerta-cobro.listo button { background-color: #28a745; }
+.comanda-footer button:disabled { background-color: #555; cursor: not-allowed; }
+.comanda-footer .completed-text { text-align: center; font-weight: bold; color: #6c757d; font-size: 1.1rem; }
+
+.no-comandas, .no-mesas-espera { width: 100%; text-align: center; font-size: 1.2rem; color: #555; }
+.sidebar-widget h2 { border-bottom: 2px solid #ffc107; padding-bottom: 0.5rem; margin-top: 0; }
+.mesas-espera-container { display: flex; flex-direction: column; gap: 0.75rem; }
+.mesa-espera-card { background-color: #2b2b2b; padding: 1rem; border-radius: 6px; border-left: 4px solid #dc3545; }
+.mesa-espera-card .info { font-weight: 500; margin-bottom: 0.25rem; }
+.mesa-espera-card .tiempo { font-size: 0.85rem; color: #a0a0a0; }

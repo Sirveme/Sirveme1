@@ -1,0 +1,28 @@
+/* static/css/sirveme1.css */
+/* Tema Oscuro para el Login de sirveme1.com */
+
+/* Importa las reglas base de metraes para no repetir código */
+@import url('metraes.css');
+
+/* Sobrescribe solo las variables de color para crear el nuevo tema */
+:root {
+    --bg-gradient-start: #1F2937;
+    --bg-gradient-end: #111827;
+    --card-bg: rgba(15, 23, 42, 0.6);
+    --text-primary: #F9FAFB;
+    --text-secondary: #9CA3AF;
+    --border-color: rgba(255, 255, 255, 0.1);
+    --input-bg: #1F2937;
+    --input-border: #374151;
+    --input-focus-border: #8B5CF6; /* Morado */
+    --button-bg-start: #8B5CF6;
+    --button-bg-end: #7C3AED;
+    --button-shadow: rgba(139, 92, 246, 0.3);
+    /* El color del texto del botón también debe cambiar */
+    --button-text-color: #F9FAFB;
+}
+
+/* Redefinimos el color del texto del botón para este tema */
+.login-button {
+    color: var(--button-text-color);
+}

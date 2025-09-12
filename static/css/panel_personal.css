@@ -1,0 +1,127 @@
+/* Hereda estilos de panel_base.css y añade los específicos */
+
+.table-container {
+    background-color: var(--bg-card);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px var(--shadow-color);
+    overflow: hidden; /* Para que los bordes redondeados se apliquen a la tabla */
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th, .data-table td {
+    padding: 1rem 1.5rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.data-table thead {
+    background-color: var(--bg-sidebar); /* Ligeramente más oscuro que el fondo de la tarjeta */
+}
+
+.data-table th {
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+}
+
+.data-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.data-table tbody tr:hover {
+    background-color: var(--bg-main);
+}
+
+/* --- Estilos para Botones de Acción en la Tabla --- */
+.btn-accion {
+    padding: 0.5rem 1rem; font-size: 0.85rem; margin-right: 0.5rem;
+    border-radius: 6px; cursor: pointer; border: 1px solid var(--border-color);
+    background-color: var(--bg-input); color: var(--text-primary); transition: all 0.2s;
+}
+.btn-accion:hover { background-color: var(--primary-color); color: white; border-color: var(--primary-color); }
+.btn-calcular-deuda { border-color: var(--success-color); color: var(--success-color); }
+.btn-calcular-deuda:hover { background-color: var(--success-color); border-color: var(--success-color); color: white; }
+
+/* --- Estilos para el Modal (RECONSTRUIDOS) --- */
+.modal-wrapper {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(17, 24, 39, 0.8); backdrop-filter: blur(4px);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; visibility: hidden; transition: all 0.3s; z-index: 1000;
+}
+.modal-wrapper.visible { opacity: 1; visibility: visible; }
+
+.modal-content {
+    background: var(--bg-card);
+    padding: 2.5rem;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 550px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    border: 1px solid var(--border-color);
+}
+.modal-content h3 {
+    margin-top: 0;
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+}
+/* Usamos las mismas clases de input-group que en otras páginas para consistencia */
+.input-group { margin-bottom: 1.25rem; }
+.input-group label { display: block; font-weight: 500; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--text-secondary); }
+.input-group input, .input-group select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-input);
+    color: var(--text-primary);
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.input-group input:focus, .input-group select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+}
+
+.modal-actions {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+}
+/* Reutilizamos las clases de botones base para consistencia */
+.btn-secondary { background-color: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); }
+.btn-secondary:hover { background-color: var(--border-color); }
+
+/* --- CORRECCIÓN PARA EL MENSAJE DE ERROR --- */
+.error-message:not(:empty) {
+    color: var(--danger-color);
+    margin-top: 1rem;
+    font-weight: 500;
+    background-color: rgba(239, 68, 68, 0.1);
+    border: 1px solid var(--danger-color);
+    padding: 0.75rem;
+    border-radius: 6px;
+}
+
+/* --- NUEVOS ESTILOS PARA EL "OJO" DE LA CONTRASEÑA --- */
+.password-wrapper { position: relative; }
+.toggle-password {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-secondary);
+}
+.toggle-password svg { width: 20px; height: 20px; }

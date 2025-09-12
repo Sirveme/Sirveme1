@@ -1,0 +1,68 @@
+/* static/css/metraes.css */
+/* Tema Semi-Oscuro para el Login de metraes.com */
+:root {
+    --bg-gradient-start: #4A5568;
+    --bg-gradient-end: #2D3748;
+    --card-bg: rgba(26, 32, 44, 0.7);
+    --text-primary: #F7FAFC;
+    --text-secondary: #A0AEC0;
+    --border-color: rgba(255, 255, 255, 0.1);
+    --input-bg: #2D3748;
+    --input-border: #4A5568;
+    --input-focus-border: #F59E0B; /* Naranja/Ámbar */
+    --button-bg-start: #F59E0B;
+    --button-bg-end: #D97706;
+    --button-shadow: rgba(245, 158, 11, 0.3);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+.login-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(15px);
+    border-radius: 20px;
+    padding: 2.5rem;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border-color);
+    width: 100%;
+    max-width: 420px;
+}
+.logo-container { text-align: center; margin-bottom: 2rem; }
+.logo { max-width: 200px; height: auto; }
+.login-header { text-align: center; margin-bottom: 2rem; }
+.login-header h1 { font-size: 1.75rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem; }
+.login-header p { color: var(--text-secondary); font-size: 0.9rem; }
+.login-form { display: flex; flex-direction: column; gap: 1.5rem; }
+.input-group label { font-size: 0.9rem; font-weight: 500; color: var(--text-secondary); margin-bottom: 0.5rem; display: block; }
+.input-wrapper { position: relative; display: flex; align-items: center; }
+.input-icon { position: absolute; left: 1rem; width: 20px; height: 20px; color: var(--text-secondary); z-index: 1; }
+.input-wrapper input {
+    width: 100%;
+    padding: 0.875rem 1rem 0.875rem 3rem;
+    border: 1px solid var(--input-border);
+    border-radius: 12px;
+    font-size: 0.95rem;
+    background: var(--input-bg);
+    color: var(--text-primary);
+    transition: all 0.2s ease;
+}
+.input-wrapper input:focus { outline: none; border-color: var(--input-focus-border); box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2); }
+.login-button {
+    padding: 0.875rem; border: none; border-radius: 12px;
+    background: linear-gradient(135deg, var(--button-bg-start) 0%, var(--button-bg-end) 100%);
+    color: #1A202C; font-size: 1rem; font-weight: 600; cursor: pointer;
+    transition: all 0.2s ease; margin-top: 0.5rem;
+}
+.login-button:hover { transform: translateY(-2px); box-shadow: 0 8px 25px var(--button-shadow); }
+.error { color: #FCA5A5; margin-top: 1rem; font-size: 0.9rem; text-align: center; }
+.login-footer { text-align: center; margin-top: 2rem; }
+.forgot-link { color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; font-weight: 500; }
+.forgot-link:hover { color: var(--accent-primary); }
