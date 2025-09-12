@@ -127,31 +127,43 @@ def seed_database():
         else:
             print("Infraestructura ya existe. Omitiendo.")
 
-        # --- 6. CREAR MENÚS DE DEMOSTRACIÓN ---
+        # --- 6. CREAR MENÚS DE DEMOSTRACIÓN (VERSIÓN ENRIQUECIDA Y COMPLETA) ---
         if db.query(modelos_core.Producto).count() == 0:
             print("Creando menús de demostración...")
             
             # --- MENÚ PARA "SABOR CRIOLLO" (RESTAURANTE) ---
+            negocio_resto = db.query(modelos_core.Negocio).filter_by(ruc='11111111111').one()
             id_cocina_resto = db.query(modelos_operativos.CentroProduccion.id).filter_by(nombre='Cocina', negocio_id=negocio_resto.id).scalar()
-            cat_pizzas_resto = modelos_core.Categoria(nombre='Pizzas', negocio_id=negocio_resto.id)
-            cat_fuertes_resto = modelos_core.Categoria(nombre='Platos Criollos', negocio_id=negocio_resto.id)
-            db.add_all([cat_pizzas_resto, cat_fuertes_resto])
-            db.flush()
+            id_barra_resto = db.query(modelos_operativos.CentroProduccion.id).filter_by(nombre='Barra', negocio_id=negocio_resto.id).scalar()
             
-            db.add(modelos_core.Producto(nombre="Lomo Saltado", precio_base=Decimal('38.00'), categoria_id=cat_fuertes_resto.id, negocio_id=negocio_resto.id, centro_produccion_id=id_cocina_resto, tipo_producto="PLATO", tiene_variantes=False))
-            
-            pizza_americana_resto = modelos_core.Producto(nombre="Pizza Americana", precio_base=Decimal('0.00'), categoria_id=cat_pizzas_resto.id, negocio_id=negocio_resto.id, centro_produccion_id=id_cocina_resto, tipo_producto="PLATO", tiene_variantes=True)
-            db.add(pizza_americana_resto)
+            categorias_resto = {
+                'entradas': modelos_core.Categoria(nombre='Entradas', negocio_id=negocio_resto.id),
+                'principales': modelos_core.Categoria(nombre='Platos Principales', negocio_id=negocio_resto.id),
+                'pizzas': modelos_core.Categoria(nombre='Pizzas', negocio_id=negocio_resto.id),
+                'bebidas': modelos_core.Categoria(nombre='Bebidas', negocio_id=negocio_resto.id)
+            }
+            for cat in categorias_resto.values(): db.add(cat)
             db.flush()
+
+            # Productos para Sabor Criollo
             db.add_all([
-                modelos_core.VarianteProducto(producto_id=pizza_americana_resto.id, nombre="Mediana", precio=Decimal('30.00')),
-                modelos_core.VarianteProducto(producto_id=pizza_americana_resto.id, nombre="Familiar", precio=Decimal('45.00'))
+                modelos_core.Producto(nombre="Lomo Saltado", precio_base=Decimal('35.00'), categoria_id=categorias_resto['principales'].id, negocio_id=negocio_resto.id, centro_produccion_id=id_cocina_resto, tipo_producto="PLATO", tiene_variantes=False),
+                modelos_core.Producto(nombre="Papa a la Huancaína", precio_base=Decimal('18.00'), categoria_id=categorias_resto['entradas'].id, negocio_id=negocio_resto.id, centro_produccion_id=id_cocina_resto, tipo_producto="PLATO", tiene_variantes=False),
+                modelos_core.Producto(nombre="Inca Kola", precio_base=Decimal('5.00'), categoria_id=categorias_resto['bebidas'].id, negocio_id=negocio_resto.id, centro_produccion_id=id_barra_resto, tipo_producto="BEBIDA", tiene_variantes=False, alias="gaseosa"),
+                modelos_core.Producto(nombre="Cerveza Cusqueña", precio_base=Decimal('10.00'), categoria_id=categorias_resto['bebidas'].id, negocio_id=negocio_resto.id, centro_produccion_id=id_barra_resto, tipo_producto="BEBIDA", tiene_variantes=False, alias="chela")
             ])
             
+            pizza_americana = modelos_core.Producto(nombre="Pizza Americana", precio_base=Decimal('0.00'), categoria_id=categorias_resto['pizzas'].id, negocio_id=negocio_resto.id, centro_produccion_id=id_cocina_resto, tipo_producto="PLATO", tiene_variantes=True)
+            db.add(pizza_americana)
+            db.flush()
+            db.add_all([modelos_core.VarianteProducto(producto_id=pizza_americana.id, nombre="Mediana", precio=Decimal('30.00')), modelos_core.VarianteProducto(producto_id=pizza_americana.id, nombre="Familiar", precio=Decimal('45.00'))])
+
             # --- MENÚ PARA "NIEVES" (DISCOTECA) ---
+            negocio_disco = db.query(modelos_core.Negocio).filter_by(ruc='20111111111').one()
             id_barra_disco = db.query(modelos_operativos.CentroProduccion.id).filter_by(nombre='Barra Principal', negocio_id=negocio_disco.id).scalar()
             id_caja_disco = db.query(modelos_operativos.CentroProduccion.id).filter_by(nombre='Caja', negocio_id=negocio_disco.id).scalar()
             
+            # Usamos tu lista completa de categorías
             categorias_disco = {
                 'piqueos': modelos_core.Categoria(nombre='Piqueos', negocio_id=negocio_disco.id),
                 'cervezas': modelos_core.Categoria(nombre='Cervezas', negocio_id=negocio_disco.id),
@@ -160,19 +172,19 @@ def seed_database():
                 'cigarrillos': modelos_core.Categoria(nombre='Cigarrillos', negocio_id=negocio_disco.id),
                 'snacks': modelos_core.Categoria(nombre='Snacks', negocio_id=negocio_disco.id)
             }
-            for categoria in categorias_disco.values():
-                db.add(categoria)
+            for cat in categorias_disco.values(): db.add(cat)
             db.flush()
             
-            productos_a_crear = [
-                modelos_core.Producto(nombre="Alitas Buffalo", precio_base=Decimal('18.00'), categoria_id=categorias_disco['piqueos'].id, negocio_id=negocio_disco.id, centro_produccion_id=id_caja_disco, tipo_producto="PLATO", tiene_variantes=False),
-                modelos_core.Producto(nombre="Cerveza Pilsen", precio_base=Decimal('12.00'), categoria_id=categorias_disco['cervezas'].id, negocio_id=negocio_disco.id, centro_produccion_id=id_barra_disco, tipo_producto="BEBIDA", tiene_variantes=False),
-                modelos_core.Producto(nombre="Cerveza Corona", precio_base=Decimal('15.00'), categoria_id=categorias_disco['cervezas'].id, negocio_id=negocio_disco.id, centro_produccion_id=id_barra_disco, tipo_producto="BEBIDA", tiene_variantes=False),
-                modelos_core.Producto(nombre="Cuba Libre", precio_base=Decimal('18.00'), categoria_id=categorias_disco['cockteles'].id, negocio_id=negocio_disco.id, centro_produccion_id=id_barra_disco, tipo_producto="BEBIDA", tiene_variantes=False),
-                modelos_core.Producto(nombre="Cigarrillos Lucky Strike", precio_base=Decimal('20.00'), categoria_id=categorias_disco['cigarrillos'].id, negocio_id=negocio_disco.id, centro_produccion_id=id_caja_disco, tipo_producto="RETAIL", tiene_variantes=False),
-                modelos_core.Producto(nombre="Chiclets Trident", precio_base=Decimal('2.50'), categoria_id=categorias_disco['snacks'].id, negocio_id=negocio_disco.id, centro_produccion_id=id_caja_disco, tipo_producto="RETAIL", tiene_variantes=False)
-            ]
-            db.add_all(productos_a_crear)
+            # Usamos y ampliamos tu lista de productos
+            db.add_all([
+                modelos_core.Producto(nombre="Alitas Buffalo", precio_base=Decimal('18.00'), categoria_id=categorias_disco['piqueos'].id, negocio_id=negocio_disco.id, centro_produccion_id=id_caja_disco, tipo_producto="PLATO"),
+                modelos_core.Producto(nombre="Cerveza Pilsen", precio_base=Decimal('12.00'), categoria_id=categorias_disco['cervezas'].id, negocio_id=negocio_disco.id, centro_produccion_id=id_barra_disco, tipo_producto="BEBIDA"),
+                modelos_core.Producto(nombre="Cerveza Corona", precio_base=Decimal('15.00'), categoria_id=categorias_disco['cervezas'].id, negocio_id=negocio_disco.id, centro_produccion_id=id_barra_disco, tipo_producto="BEBIDA"),
+                modelos_core.Producto(nombre="Cuba Libre", precio_base=Decimal('18.00'), categoria_id=categorias_disco['cockteles'].id, negocio_id=negocio_disco.id, centro_produccion_id=id_barra_disco, tipo_producto="BEBIDA"),
+                modelos_core.Producto(nombre="Chilcano de Pisco", precio_base=Decimal('16.00'), categoria_id=categorias_disco['cockteles'].id, negocio_id=negocio_disco.id, centro_produccion_id=id_barra_disco, tipo_producto="BEBIDA"),
+                modelos_core.Producto(nombre="Cigarrillos Lucky Strike", precio_base=Decimal('20.00'), categoria_id=categorias_disco['cigarrillos'].id, negocio_id=negocio_disco.id, centro_produccion_id=id_caja_disco, tipo_producto="RETAIL"),
+                modelos_core.Producto(nombre="Chiclets Trident", precio_base=Decimal('2.50'), categoria_id=categorias_disco['snacks'].id, negocio_id=negocio_disco.id, centro_produccion_id=id_caja_disco, tipo_producto="RETAIL")
+            ])
             
             jw_black = modelos_core.Producto(nombre="Whisky JW Black Label", precio_base=Decimal('0.00'), categoria_id=categorias_disco['licores'].id, negocio_id=negocio_disco.id, centro_produccion_id=id_barra_disco, tipo_producto="BEBIDA", tiene_variantes=True)
             db.add(jw_black)
