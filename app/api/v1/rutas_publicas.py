@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session, joinedload
 from app.core.app_setup import templates
 from app.db.conexion import SessionLocal
 from app.db.modelos import modelos_core
-from app.db.modelos import modelos_configuracion
+from app.db.modelos import modelos_configuracion, modelos_operativos
 
 from app.esquemas import esquemas_configuracion
 
@@ -80,3 +80,4 @@ async def get_home_page(request: Request):
     brand_config = request.state.brand_config
     context = {"request": request, "brand_config": brand_config}
     return templates.TemplateResponse("public/home.html", context)
+
