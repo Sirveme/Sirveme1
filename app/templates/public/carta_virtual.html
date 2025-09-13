@@ -12,7 +12,7 @@
 <body>
     <div class="main-container">
         <header class="carta-header">
-            <img src="{{ brand_config.logo_url }}" alt="Logo" class="logo">
+            <img src="{{ brand_config.logo_url | default('/static/img/placeholder_logo.png') }}" alt="Logo" class="logo">
             <h1>{{ negocio.nombre_comercial }}</h1>
             <button id="theme-toggle-btn" class="theme-toggle">🌙</button>
         </header>
@@ -35,36 +35,71 @@
             <button type="button" class="btn-confirmar" id="btn-confirmar-pedido">Confirmar Pedido</button>
         </footer>
     </div>
+
     <section class="menu-section-wrapper" id="menu-section">
         <div class="menu-header">
             <a href="#" class="close-menu-btn" id="close-menu-btn">&times; Ocultar menú</a>
         </div>
-        <nav class="category-nav">
-            {% for categoria in categorias %}
-                <a href="#categoria-{{ categoria.id }}">{{ categoria.nombre }}</a>
-            {% endfor %}
+        <nav class="category-nav" id="category-nav-menu">
+            <!-- Las categorías se insertarán aquí por JS -->
         </nav>
-        <div class="menu-container">
-            <!-- Contenido del menú se renderiza aquí -->
+        <div class="menu-container" id="menu-container-items">
+            <!-- Los productos del menú se insertarán aquí por JS -->
         </div>
     </section>
     
     <div id="toast-notification" class="toast"></div>
-    <div class="modal-wrapper" id="modal-aclaracion"></div>
 
-    <!-- *** ¡HTML FALTANTE AÑADIDO! *** -->
-    <div class="modal-wrapper" id="modal-pasarela">
+    <!-- === MODAL DE PAGO (ESTRUCTURA COMPLETA Y FINAL) === -->
+    <div class="modal-wrapper" id="modal-pago">
         <div class="modal-content">
-            <h3>Simulación de Pasarela de Pago</h3>
-            <p>Tu pedido requiere pago para ser enviado a cocina.</p>
-            <div class="resumen-pago">
+            <h3 id="pago-modal-title">Selecciona tu Método de Pago</h3>
+            <div class="pago-resumen">
                 <span>Total a Pagar:</span>
-                <strong id="monto-pago-simulado">S/ 0.00</strong>
+                <strong id="monto-total-pago">S/ 0.00</strong>
             </div>
-            <div class="modal-actions">
-                <button type="button" id="btn-pago-fallido" class="btn-secondary">Simular Pago Fallido</button>
-                <button type="button" id="btn-pago-exitoso" class="btn-primary">Simular Pago Exitoso</button>
+
+            <!-- Paso 1: Selección de Método de Pago -->
+            <div id="paso1-metodos" class="metodos-pago-grid">
+                <button class="metodo-pago-btn efectivo" data-metodo="efectivo">
+                    <!-- Icono SVG para Efectivo -->
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6"><path d="M4.5 3.75a3 3 0 00-3 3v.75h21v-.75a3 3 0 00-3-3h-15z" /><path fill-rule="evenodd" d="M22.5 9.75h-21v7.5a3 3 0 003 3h15a3 3 0 003-3v-7.5zm-18 3.75a.75.75 0 01.75-.75h6a.75.75 0 010 1.5h-6a.75.75 0 01-.75-.75zm.75 2.25a.75.75 0 000 1.5h3a.75.75 0 000-1.5h-3z" clip-rule="evenodd" /></svg>
+                    <span>Efectivo</span>
+                </button>
+                <div class="metodos-digitales">
+                    <button class="metodo-pago-btn yape" data-metodo="yape">
+                         <!-- Icono SVG para Yape/Plin -->
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6"><path fill-rule="evenodd" d="M1.5 4.5a3 3 0 013-3h1.372c.86 0 1.61.586 1.819 1.42l1.105 4.423a1.875 1.875 0 01-.694 1.955l-1.293.97c-.135.101-.164.279-.087.431l4.28 7.433c.077.152.252.179.354.043l1.293-.97a1.875 1.875 0 011.955-.694l4.423 1.105c.834.209 1.42.959 1.42 1.82V19.5a3 3 0 01-3 3h-1.372c-.86 0-1.61-.586-1.819-1.42l-1.105-4.423a1.875 1.875 0 01.694-1.955l1.293-.97c.135-.101.164-.279.087-.431l-4.28-7.433c-.077-.152-.252-.179-.354-.043l-1.293.97a1.875 1.875 0 01-1.955.694l-4.423-1.105a1.875 1.875 0 01-1.82-1.42V4.5z" clip-rule="evenodd" /></svg>
+                        <span>Yape</span>
+                    </button>
+                    <button class="metodo-pago-btn plin" data-metodo="plin">
+                         <!-- Icono SVG para Yape/Plin -->
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6"><path fill-rule="evenodd" d="M1.5 4.5a3 3 0 013-3h1.372c.86 0 1.61.586 1.819 1.42l1.105 4.423a1.875 1.875 0 01-.694 1.955l-1.293.97c-.135.101-.164.279-.087.431l4.28 7.433c.077.152.252.179.354.043l1.293-.97a1.875 1.875 0 011.955-.694l4.423 1.105c.834.209 1.42.959 1.42 1.82V19.5a3 3 0 01-3 3h-1.372c-.86 0-1.61-.586-1.819-1.42l-1.105-4.423a1.875 1.875 0 01.694-1.955l1.293-.97c.135-.101.164-.279.087-.431l-4.28-7.433c-.077-.152-.252-.179-.354-.043l-1.293.97a1.875 1.875 0 01-1.955.694l-4.423-1.105a1.875 1.875 0 01-1.82-1.42V4.5z" clip-rule="evenodd" /></svg>
+                        <span>Plin</span>
+                    </button>
+                </div>
+                <button class="metodo-pago-btn tarjeta" data-metodo="tarjeta" disabled>
+                    <!-- Icono SVG para Tarjeta -->
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6"><path d="M4.5 3.75a3 3 0 00-3 3v10.5a3 3 0 003 3h15a3 3 0 003-3V6.75a3 3 0 00-3-3h-15z" /><path d="M22.5 9v.75a.75.75 0 01-1.5 0V9h-18v.75a.75.75 0 01-1.5 0V9h21z" /></svg>
+                    <span>Tarjeta Débito/Crédito</span>
+                    <small>(Próximamente)</small>
+                </button>
             </div>
+
+            <!-- Paso 2: Formulario para Efectivo -->
+            <div id="paso2-efectivo" class="pago-formulario" style="display: none;">
+                <p>Un miembro de nuestro personal se acercará a cobrar. Por favor, indícanos un nombre para llamar tu pedido.</p>
+                <div class="input-group">
+                    <label for="alias-cliente">Tu Nombre o Alias</label>
+                    <input type="text" id="alias-cliente" placeholder="Ej: Juan Pérez, 'El Capi'">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" id="btn-volver-metodos" class="btn-secondary">Volver</button>
+                    <button type="button" id="btn-avisar-caja" class="btn-primary">Avisar a Caja</button>
+                </div>
+            </div>
+            
+            <!-- (Aquí irán los formularios para Yape y Tarjeta en el futuro) -->
         </div>
     </div>
 
