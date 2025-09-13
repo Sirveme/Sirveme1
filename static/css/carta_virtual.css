@@ -303,3 +303,155 @@ body {
     opacity: 1;
     visibility: visible;
 }
+
+
+
+/* --- AÑADE ESTO AL FINAL DE TU CSS --- */
+.pago-resumen { margin-bottom: 2rem; text-align: center; }
+.pago-resumen strong { font-size: 1.8rem; color: var(--primary-color); }
+
+.metodos-pago-grid { display: grid; gap: 1rem; }
+.metodo-pago-btn {
+    display: flex; align-items: center; gap: 1rem; text-align: left;
+    width: 100%; padding: 1.5rem; font-size: 1.1rem; font-weight: 600;
+    background-color: var(--bg-input); border: 1px solid var(--border-color);
+    border-radius: 8px; cursor: pointer; color: var(--text-primary); transition: all 0.2s;
+}
+.metodo-pago-btn:hover { border-color: var(--primary-color); background-color: var(--bg-card); }
+.metodo-pago-btn svg { width: 28px; height: 28px; color: var(--primary-color); }
+.metodo-pago-btn[disabled] { opacity: 0.5; cursor: not-allowed; }
+.metodo-pago-btn[disabled]:hover { border-color: var(--border-color); background-color: var(--bg-input); }
+.metodo-pago-btn small { font-size: 0.8rem; font-weight: 400; opacity: 0.7; }
+
+.pago-formulario { text-align: center; }
+.pago-formulario p { margin-bottom: 1.5rem; color: var(--text-secondary); }
+.pago-formulario .input-group { text-align: left; }
+
+
+.metodos-digitales { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.metodo-pago-btn.efectivo { background-color: #D32F2F; color: white; border-color: #B71C1C; }
+.metodo-pago-btn.efectivo:hover { background-color: #B71C1C; }
+.metodo-pago-btn.yape { background-color: #8A2BE2; color: white; border-color: #6A1B9A; }
+.metodo-pago-btn.yape:hover { background-color: #6A1B9A; }
+.metodo-pago-btn.plin { background-color: #00AEEF; color: white; border-color: #008DBC; }
+.metodo-pago-btn.plin:hover { background-color: #008DBC; }
+
+
+/* === ESTILOS PARA EL NUEVO MODAL DE PAGO === */
+.pago-resumen {
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background-color: var(--bg-page);
+    border-radius: 8px;
+    text-align: center;
+}
+.pago-resumen span {
+    display: block;
+    color: var(--text-secondary);
+    font-size: 1rem;
+}
+.pago-resumen strong {
+    display: block;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.metodos-pago-grid {
+    display: grid;
+    gap: 1rem;
+}
+
+.metodo-pago-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    text-align: left;
+    width: 100%;
+    padding: 1.25rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    background-color: var(--bg-input);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    cursor: pointer;
+    color: var(--text-primary);
+    transition: all 0.2s ease-in-out;
+    position: relative;
+}
+
+.metodo-pago-btn:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+.metodo-pago-btn svg {
+    width: 28px;
+    height: 28px;
+}
+.metodo-pago-btn[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+.metodo-pago-btn[disabled]:hover {
+    border-color: var(--border-color);
+    transform: none;
+    box-shadow: none;
+}
+.metodo-pago-btn small {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 400;
+    opacity: 0.7;
+    margin-top: 2px;
+}
+
+.metodos-digitales {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.metodo-pago-btn.efectivo {
+    background: linear-gradient(45deg, #D32F2F, #ef5350);
+    color: white;
+    border: none;
+}
+.metodo-pago-btn.yape {
+    background: linear-gradient(45deg, #6A1B9A, #9c27b0);
+    color: white;
+    border: none;
+}
+.metodo-pago-btn.plin {
+    background: linear-gradient(45deg, #008DBC, #00AEEF);
+    color: white;
+    border: none;
+}
+
+.pago-formulario {
+    text-align: center;
+}
+.pago-formulario p {
+    margin: 1rem 0 1.5rem 0;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+.pago-formulario .input-group {
+    text-align: left;
+    margin-bottom: 1.5rem;
+}
+.pago-formulario .input-group label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+.pago-formulario .input-group input {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-page);
+    color: var(--text-primary);
+    font-size: 1rem;
+}
