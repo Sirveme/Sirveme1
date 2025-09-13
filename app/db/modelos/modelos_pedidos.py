@@ -29,6 +29,7 @@ class Pedido(Base):
     mesa_id = Column(Integer, ForeignKey('mesas.id'), nullable=True)
     mozo_id = Column(Integer, ForeignKey('usuarios.id'), nullable=True) # Mozo es un Usuario
     cuenta_id = Column(Integer, ForeignKey('cuentas.id'), nullable=False) # Cada pedido PERTENECE a una cuenta
+    alias_cliente = Column(String(100), nullable=True) # Para cobros en efectivo
 
     total_pedido = Column(Numeric(10, 2), nullable=False) # Total solo de este pedido
     estado = Column(SQLAlchemyEnum(EstadoPedido), nullable=False, default=EstadoPedido.PENDIENTE)
