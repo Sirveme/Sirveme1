@@ -15,8 +15,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const closeMenuBtn = document.getElementById('close-menu-btn');
     const themeToggleBtn = document.getElementById('theme-toggle-btn');
     const toast = document.getElementById('toast-notification');
-    const modalPasarela = document.getElementById('modal-pasarela');
     const btnConfirmarPedidoFooter = document.getElementById('btn-confirmar-pedido');
+    
+    // Elementos del Modal de Pago
+    const modalPago = document.getElementById('modal-pago');
+    const montoTotalPago = document.getElementById('monto-total-pago');
+    const paso1Metodos = document.getElementById('paso1-metodos');
+    const paso2Efectivo = document.getElementById('paso2-efectivo');
 
     // --- MODO OSCURO ---
     function setTheme(theme) {
@@ -30,8 +35,9 @@ document.addEventListener('DOMContentLoaded', function() {
     let isSpeaking = false;
     function hablarTexto(texto, highPriority = false) {
         if ('speechSynthesis' in window) {
-            if (highPriority) audioQueue.unshift(texto);
-            else audioQueue.push(texto);
+            const textoParaHablar = texto.replace('#', 'número ');
+            if (highPriority) audioQueue.unshift(textoParaHablar);
+            else audioQueue.push(textoParaHablar);
             procesarColaDeAudio();
         }
     }
@@ -86,14 +92,126 @@ document.addEventListener('DOMContentLoaded', function() {
     verMenuLink.addEventListener('click', (e) => { e.preventDefault(); menuSection.classList.add('visible'); });
     closeMenuBtn.addEventListener('click', (e) => { e.preventDefault(); menuSection.classList.remove('visible'); });
 
-    btnConfirmarPedidoFooter.addEventListener('click', () => {
-        if (carritoContainer.querySelectorAll('.carrito-product-card').length > 0) {
-            enviarPedidoFinal();
-        } else {
-            mostrarNotificacion("Tu carrito está vacío.");
-        }
-    });
+    // --- FLUJO DE CONFIRMACIÓN DE PEDIDO (CORREGIDO) ---
+    btnConfirmarPedidoFooter.addEventListener('click', iniciarProcesoDePedido);
 
+    function iniciarProcesoDePedido() {
+        const itemCards = carritoContainer.querySelectorAll('.carrito-product-card');
+        if (itemCards.length === 0) {
+            mostrarNotificacion("Tu carrito está vacío.");
+            return;
+        }
+        btnConfirmarPedidoFooter.disabled = true;
+        btnConfirmarPedidoFooter.textContent = 'Procesando...';
+        const itemsParaEnviar = Array.from(itemCards).map(card => {
+            const selectVariante = card.querySelector('.variante-select');
+            const modificadoresSeleccionados = Array.from(card.querySelectorAll('.modificador-opcion input:checked')).map(input => parseInt(input.value));
+            const notaCocinaInput = card.querySelector('.nota-cocina-input');
+            const notaCocina = notaCocinaInput ? notaCocinaInput.value.trim() : null;
+            return {
+                producto_id: parseInt(card.dataset.productoId),
+                cantidad: parseInt(card.querySelector('.cantidad-input').value),
+                variante_id: selectVariante ? parseInt(selectVariante.value) : null,
+                modificadores_seleccionados: modificadoresSeleccionados,
+                nota_cocina: notaCocina || null
+            };
+        });
+        const pathParts = window.location.pathname.split('/');
+        const slugNegocio = pathParts[2];
+        const zonaId = parseInt(pathParts[3]);
+        const mesaId = parseInt(pathParts[4]);
+        const pedidoData = { items: itemsParaEnviar, cliente: {}, zona_id: zonaId, mesa_id: mesaId };
+        
+        fetch(`/api/v1/carta/${slugNegocio}/${zonaId}/${mesaId}/iniciar-proceso-pedido`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(pedidoData)
+        })
+        .then(response => {
+             if (!response.ok) {
+                return response.json().then(err => Promise.reject(err.detail || 'Los datos enviados son incorrectos.'));
+            }
+            return response.json();
+        })
+        .then(data => {
+            manejarRespuestaDeProceso(data);
+        })
+        .catch(error => {
+            console.error("Error al iniciar proceso de pedido:", error);
+            mostrarNotificacion(error.toString());
+        })
+        .finally(() => {
+            btnConfirmarPedidoFooter.disabled = false;
+            btnConfirmarPedidoFooter.textContent = 'Confirmar Pedido';
+        });
+    }
+
+    function manejarRespuestaDeProceso(respuesta) {
+        if (respuesta.status === "enviado_a_cocina") {
+            const mensajeConfirmacion = `¡Pedido #${respuesta.pedido_id} confirmado!`;
+            mostrarNotificacion(mensajeConfirmacion, 'success');
+            resetearCarrito(false);
+        } 
+        else if (respuesta.status === "pago_requerido") {
+            montoTotalPago.textContent = totalEl.textContent;
+            paso1Metodos.style.display = 'grid';
+            paso2Efectivo.style.display = 'none';
+            modalPago.classList.add('visible');
+            const btnEfectivo = paso1Metodos.querySelector('[data-metodo="efectivo"]');
+            const btnVolver = paso2Efectivo.querySelector('#btn-volver-metodos');
+            const btnAvisarCaja = paso2Efectivo.querySelector('#btn-avisar-caja');
+            const efectivoHandler = () => {
+                paso1Metodos.style.display = 'none';
+                paso2Efectivo.style.display = 'block';
+            };
+            const volverHandler = () => {
+                paso2Efectivo.style.display = 'none';
+                paso1Metodos.style.display = 'grid';
+            };
+            const avisarCajaHandler = async () => {
+                const aliasInput = document.getElementById('alias-cliente');
+                const alias = aliasInput.value.trim();
+                if (!alias) {
+                    mostrarNotificacion("Por favor, ingresa un nombre o alias.");
+                    return;
+                }
+                const pedidoId = respuesta.pedido_id;
+                if (!pedidoId) {
+                    mostrarNotificacion("Error: No se pudo obtener el ID del pedido. Intenta de nuevo.");
+                    return;
+                }
+                btnAvisarCaja.disabled = true;
+                btnAvisarCaja.textContent = 'Enviando...';
+                try {
+                    const response = await fetch(`/api/v1/panel/pedidos/${pedidoId}/notificar-cobro-efectivo`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ alias_cliente: alias })
+                    });
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.detail || 'No se pudo notificar a caja.');
+                    }
+                    mostrarNotificacion("¡Excelente! Hemos avisado a caja. Atento a tu nombre.", 'success', 6000);
+                    modalPago.classList.remove('visible');
+                    resetearCarrito(false);
+                } catch (error) {
+                    mostrarNotificacion(error.message);
+                } finally {
+                    btnAvisarCaja.disabled = false;
+                    btnAvisarCaja.textContent = 'Avisar a Caja';
+                }
+            };
+            btnEfectivo.replaceWith(btnEfectivo.cloneNode(true));
+            paso1Metodos.querySelector('[data-metodo="efectivo"]').addEventListener('click', efectivoHandler);
+            btnVolver.replaceWith(btnVolver.cloneNode(true));
+            paso2Efectivo.querySelector('#btn-volver-metodos').addEventListener('click', volverHandler);
+            btnAvisarCaja.replaceWith(btnAvisarCaja.cloneNode(true));
+            paso2Efectivo.querySelector('#btn-avisar-caja').addEventListener('click', avisarCajaHandler);
+        }
+    }
+
+    // --- El resto de las funciones (DOM, Carrito, etc) se quedan igual ---
     carritoContainer.addEventListener('click', (event) => {
         if (event.target.closest('.card-toggle-collapse')) {
             event.target.closest('.carrito-product-card').classList.toggle('is-collapsed');
@@ -107,32 +225,18 @@ document.addEventListener('DOMContentLoaded', function() {
             mostrarNotificacion(`Mostrando detalles de ${productName}`, 'info');
         }
     });
-
     carritoContainer.addEventListener('input', (event) => {
         if (event.target.matches('.cantidad-input, .variante-select, .nota-cocina-input')) {
             actualizarCalculoTotal();
         }
     });
-
     carritoContainer.addEventListener('change', (event) => {
         if (event.target.matches('input[type="radio"], input[type="checkbox"]')) {
             actualizarCalculoTotal();
         }
     });
-    
-    // --- INICIALIZACIÓN ---
     const savedTheme = localStorage.getItem('theme') || 'dark';
     setTheme(savedTheme);
-    
-    // --- NOTIFICACIONES TOAST ---
-    function mostrarNotificacion(mensaje, tipo = 'error') {
-        toast.textContent = mensaje;
-        toast.className = `toast show ${tipo}`;
-        hablarTexto(mensaje, true);
-        setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
-    }
-    
-    // --- LÓGICA DE INTENCIONES ---
     function procesarComandoDeVoz(texto) {
         const pathParts = window.location.pathname.split('/');
         const slugNegocio = pathParts[2];
@@ -151,74 +255,42 @@ document.addEventListener('DOMContentLoaded', function() {
             mostrarNotificacion("Lo sentimos, no pudimos procesar tu pedido.");
         });
     }
-
     function despacharAccion(respuesta) {
         const intent = respuesta.intent;
         const entities = respuesta.entities;
-
         if (!intent || !entities) {
             mostrarNotificacion("No entendí lo que dijiste, intenta de nuevo.");
             return;
         }
-
         switch(intent) {
-            case "ADD_ITEMS":
-                agregarOActualizarItems(entities, false);
-                break;
-            case "MODIFY_QUANTITY":
-                agregarOActualizarItems(entities, true);
-                break;
-            case "REMOVE_ITEMS":
-                eliminarItems(entities);
-                break;
-            case "RESET_ORDER":
-                resetearCarrito();
-                if (entities.length > 0) {
-                    agregarOActualizarItems(entities, false);
-                }
-                break;
-            case "NOT_FOUND":
-                const productName = entities[0]?.product_name || "El producto";
-                mostrarNotificacion(`Lo sentimos, no vendemos "${productName}".`);
-                break;
-            default:
-                mostrarNotificacion("No entendí lo que dijiste, por favor sé más específico.");
+            case "ADD_ITEMS": agregarOActualizarItems(entities, false); break;
+            case "MODIFY_QUANTITY": agregarOActualizarItems(entities, true); break;
+            case "REMOVE_ITEMS": eliminarItems(entities); break;
+            case "RESET_ORDER": resetearCarrito(); if (entities.length > 0) { agregarOActualizarItems(entities, false); } break;
+            case "NOT_FOUND": const productName = entities[0]?.product_name || "El producto"; mostrarNotificacion(`Lo sentimos, no vendemos "${productName}".`); break;
+            default: mostrarNotificacion("No entendí lo que dijiste, por favor sé más específico.");
         }
-        
         const resumenAccion = generarResumen(intent, entities);
-        if (resumenAccion) {
-            hablarTexto(resumenAccion, true);
-        }
+        if (resumenAccion) { hablarTexto(resumenAccion, true); }
     }
-
     function generarResumen(intent, entities) {
         if (entities.length === 0) return null;
         const count = entities.length;
         const primerProducto = entities[0].full_product_data?.nombre || 'un producto';
-
         switch(intent) {
-            case "ADD_ITEMS":
-                return count > 1 ? `${count} productos añadidos.` : `Añadido ${primerProducto}.`;
-            case "MODIFY_QUANTITY":
-                return count > 1 ? `Cantidades corregidas.` : `Cantidad de ${primerProducto} corregida.`;
-            case "REMOVE_ITEMS":
-                return count > 1 ? `Se han eliminado varios productos.` : `Se ha modificado tu pedido de ${primerProducto}.`;
+            case "ADD_ITEMS": return count > 1 ? `${count} productos añadidos.` : `Añadido ${primerProducto}.`;
+            case "MODIFY_QUANTITY": return count > 1 ? `Cantidades corregidas.` : `Cantidad de ${primerProducto} corregida.`;
+            case "REMOVE_ITEMS": return count > 1 ? `Se han eliminado varios productos.` : `Se ha modificado tu pedido de ${primerProducto}.`;
             default: return null;
         }
     }
-
     function agregarOActualizarItems(items, esModificacion = false) {
-        if (items.length === 0) {
-            if (!esModificacion) mostrarNotificacion("No encontramos productos que coincidan.");
-            return;
-        }
+        if (items.length === 0) { if (!esModificacion) mostrarNotificacion("No encontramos productos que coincidan."); return; }
         let itemAgregado = false;
         items.forEach(item => {
             const productoCompleto = item.full_product_data;
             if (!productoCompleto) return;
-
             const existingItemCard = carritoContainer.querySelector(`[data-producto-id="${productoCompleto.id}"]`);
-
             if (existingItemCard) {
                 const cantidadInput = existingItemCard.querySelector('.cantidad-input');
                 cantidadInput.value = esModificacion ? item.quantity : parseInt(cantidadInput.value) + item.quantity;
@@ -229,7 +301,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     const opciones = productoCompleto.variantes_disponibles.map(v => `<option value="${v.id}" data-precio="${v.precio}">${v.nombre}</option>`).join('');
                     opcionesHTML = `<div class="card-product-options"><select name="variante" class="variante-select">${opciones}</select></div>`;
                 }
-
                 let modificadoresHTML = '';
                 if (productoCompleto.modificadores_disponibles && productoCompleto.modificadores_disponibles.length > 0) {
                     productoCompleto.modificadores_disponibles.forEach(grupo => {
@@ -245,7 +316,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         modificadoresHTML += `<div class="modificador-grupo"><h4>${grupo.nombre} (Elige hasta ${grupo.seleccion_maxima})</h4>${opcionesModificador}</div>`;
                     });
                 }
-
                 const cardHTML = `
                     <div class="carrito-product-card" data-producto-id="${productoCompleto.id}" data-precio-base="${productoCompleto.precio_base || 0}">
                         <div class="card-feedback-icon">✓</div>
@@ -274,18 +344,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                     </div>`;
                 carritoContainer.insertAdjacentHTML('beforeend', cardHTML);
-                const nuevaTarjeta = carritoContainer.lastElementChild;
-                mostrarFeedbackVisual(nuevaTarjeta);
+                mostrarFeedbackVisual(carritoContainer.lastElementChild);
             }
             itemAgregado = true;
         });
         if(itemAgregado) actualizarCalculoTotal();
     }
-    
-    function modificarCantidadItems(items) {
-        agregarOActualizarItems(items, true);
-    }
-    
     function eliminarItems(items) {
         items.forEach(item => {
             const cardToRemove = carritoContainer.querySelector(`[data-producto-id="${item.product_id}"]`);
@@ -293,7 +357,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 const cantidadInput = cardToRemove.querySelector('.cantidad-input');
                 const cantidadActual = parseInt(cantidadInput.value);
                 const nuevaCantidad = cantidadActual - item.quantity;
-
                 if (nuevaCantidad <= 0 || item.quantity >= 999) {
                     cardToRemove.remove();
                 } else {
@@ -304,31 +367,23 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         actualizarCalculoTotal();
     }
-
     function resetearCarrito(conMensaje = true) {
         carritoContainer.innerHTML = '';
         actualizarCalculoTotal();
-        if (conMensaje) {
-            mostrarNotificacion("Tu pedido ha sido reiniciado.", "info");
-        }
+        if (conMensaje) { mostrarNotificacion("Tu pedido ha sido reiniciado.", "info"); }
     }
-
     function mostrarFeedbackVisual(cardElement, type = 'add') {
         const icon = cardElement.querySelector('.card-feedback-icon');
         if (!icon) return;
-
         icon.textContent = type === 'add' ? '✓' : '−';
         icon.style.color = type === 'add' ? `var(--success-color)` : `var(--danger-color)`;
-
         cardElement.classList.add('show-feedback');
         setTimeout(() => { cardElement.classList.remove('show-feedback'); }, 1000);
     }
-    
     function actualizarCalculoTotal() {
         const itemCards = carritoContainer.querySelectorAll('.carrito-product-card');
         let totalGeneral = 0;
         let cantidadTotalItems = 0;
-
         itemCards.forEach(card => {
             const cantidad = parseInt(card.querySelector('.cantidad-input').value) || 0;
             let precioUnitario = 0;
@@ -338,99 +393,23 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 precioUnitario = parseFloat(card.dataset.precioBase);
             }
-
             let precioModificadores = 0;
             card.querySelectorAll('.modificador-opcion input:checked').forEach(input => {
                 precioModificadores += parseFloat(input.dataset.precioExtra);
             });
-
             const subtotal = cantidad * (precioUnitario + precioModificadores);
             card.querySelector('.item-subtotal').textContent = `S/ ${subtotal.toFixed(2)}`;
             totalGeneral += subtotal;
             cantidadTotalItems += cantidad;
         });
-        
         totalEl.textContent = `S/ ${totalGeneral.toFixed(2)}`;
         cantidadEl.textContent = cantidadTotalItems;
-
         if (itemCards.length > 0) {
             introPlaceholder.classList.add('hidden');
             carritoFooter.classList.add('visible');
         } else {
             introPlaceholder.classList.remove('hidden');
             carritoFooter.classList.remove('visible');
-        }
-    }
-
-    function enviarPedidoFinal() {
-        btnConfirmarPedidoFooter.disabled = true;
-        btnConfirmarPedidoFooter.textContent = 'Enviando...';
-
-        const itemCards = carritoContainer.querySelectorAll('.carrito-product-card');
-        const itemsParaEnviar = Array.from(itemCards).map(card => {
-            const selectVariante = card.querySelector('.variante-select');
-            const modificadoresSeleccionados = Array.from(card.querySelectorAll('.modificador-opcion input:checked')).map(input => parseInt(input.value));
-            const notaCocinaInput = card.querySelector('.nota-cocina-input');
-            const notaCocina = notaCocinaInput ? notaCocinaInput.value.trim() : null;
-            
-            return {
-                producto_id: parseInt(card.dataset.productoId),
-                cantidad: parseInt(card.querySelector('.cantidad-input').value),
-                variante_id: selectVariante ? parseInt(selectVariante.value) : null,
-                modificadores_seleccionados: modificadoresSeleccionados,
-                nota_cocina: notaCocina || null
-            };
-        });
-        
-        const pathParts = window.location.pathname.split('/');
-        const slugNegocio = pathParts[2];
-        const zonaId = parseInt(pathParts[3]);
-        const mesaId = parseInt(pathParts[4]);
-
-        // En este flujo simplificado, el cliente es anónimo
-        const pedidoData = { 
-            items: itemsParaEnviar,
-            cliente: {},
-            zona_id: zonaId,
-            mesa_id: mesaId
-        };
-        
-        fetch(`/api/v1/carta/${slugNegocio}/${zonaId}/${mesaId}/iniciar-proceso-pedido`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(pedidoData)
-        })
-        .then(response => {
-             if (!response.ok) {
-                return response.json().then(err => Promise.reject(err.detail || 'Los datos enviados son incorrectos.'));
-            }
-            return response.json();
-        })
-        .then(data => {
-            manejarRespuestaDeProceso(data);
-        })
-        .catch(error => {
-            console.error("Error al iniciar proceso de pedido:", error);
-            mostrarNotificacion(error.toString());
-        })
-        .finally(() => {
-            btnConfirmarPedidoFooter.disabled = false;
-            btnConfirmarPedidoFooter.textContent = 'Confirmar Pedido';
-        });
-    }
-
-    function manejarRespuestaDeProceso(respuesta) {
-        if (respuesta.status === "enviado_a_cocina") {
-            // Flujo POSTPAGO (Restaurante)
-            const mensajeConfirmacion = `¡Pedido #${respuesta.pedido_id} confirmado!`;
-            mostrarNotificacion(mensajeConfirmacion, 'success');
-            resetearCarrito(false);
-        } 
-        else if (respuesta.status === "pago_requerido") {
-            // Flujo PREPAGO (Discoteca)
-            const mensajeCobro = "Pedido pre-confirmado. Un miembro de nuestro personal se acercará a su mesa para realizar el cobro.";
-            mostrarNotificacion(mensajeCobro, 'info', 6000); // Muestra por 6 segundos
-            resetearCarrito(false);
         }
     }
 });
