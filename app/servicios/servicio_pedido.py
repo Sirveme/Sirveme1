@@ -113,7 +113,8 @@ async def crear_nuevo_pedido(
     db.refresh(cuenta)
 
     # 6. LÓGICA DE WEBSOCKETS (AHORA CON DATOS REALES Y COMPLETOS)
-    if estado_inicial == modelos_pedidos.EstadoPedido.PENDIENTE_DE_PAGO:
+    # --- LÓGICA DE WEBSOCKETS (SOLO PARA POSTPAGO) ---
+    if estado_inicial != modelos_pedidos.EstadoPedido.PENDIENTE_DE_PAGO:
         print(f"[WS-LOG] Modo PREPAGO. Buscando centro 'Caja' para negocio_id {negocio_id}...")
         id_caja = db.query(modelos_operativos.CentroProduccion.id).filter(
             modelos_operativos.CentroProduccion.negocio_id == negocio_id,
