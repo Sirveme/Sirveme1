@@ -4,6 +4,7 @@ from sqlalchemy import func
 from typing import List
 from datetime import datetime, timezone, timedelta
 from collections import defaultdict
+from pydantic import BaseModel
 import json
 
 # --- Importaciones Estandarizadas ---
@@ -21,6 +22,11 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+class NotificacionCobroRequest(BaseModel):
+    alias_cliente: str
+
 
 # --- ENDPOINTS DE GESTIÓN DE PEDIDOS (KDS) ---
 
@@ -279,3 +285,41 @@ def add_metodo_pago_a_local(
     db.commit()
     db.refresh(nuevo_metodo)
     return nuevo_metodo
+
+
+@router.post("/panel/pedidos/{pedido_id}/notificar-cobro-efectivo", status_code=200)
+async def notificar_cobro_efectivo(
+    pedido_id: int,
+    notificacion_in: NotificacionCobroRequest,
+    db: Session = Depends(get_db)
+    # No requiere autenticación del cliente, ya que la URL es "secreta" por un tiempo
+):
+    pedido = db.query(modelos_pedidos.Pedido).filter(modelos_pedidos.Pedido.id == pedido_id).first()
+    if not pedido:
+        raise HTTPException(status_code=404, detail="Pedido no encontrado.")
+
+    if pedido.estado != modelos_pedidos.EstadoPedido.PENDIENTE_DE_PAGO:
+        raise HTTPException(status_code=400, detail="Este pedido no está pendiente de pago.")
+    
+    # Guardar el alias en la base de datos
+    pedido.alias_cliente = notificacion_in.alias_cliente
+    db.commit()
+
+    # Enviar la notificación por WebSocket a Caja
+    id_caja = db.query(modelos_operativos.CentroProduccion.id).filter(
+        modelos_operativos.CentroProduccion.negocio_id == pedido.negocio_id,
+        modelos_operativos.CentroProduccion.nombre == 'Caja'
+    ).scalar()
+    
+    if id_caja:
+        mensaje_caja = {
+            "tipo_alerta": "COBRO_PENDIENTE_EFECTIVO",
+            "mesa_id": pedido.mesa_id,
+            "pedido_id": pedido.id,
+            "total_cobrar": float(pedido.total_pedido),
+            "alias_cliente": pedido.alias_cliente,
+            "items": [{"nombre": det.nombre_producto, "cantidad": det.cantidad} for det in pedido.detalles]
+        }
+        await manager.broadcast(json.dumps(mensaje_caja), client_id=str(id_caja))
+    
+    return {"mensaje": "Notificación de cobro en efectivo enviada a caja."}

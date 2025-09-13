@@ -21,7 +21,44 @@ def get_db():
         db.close()
 
 # === RUTA PARA MOSTRAR LA CARTA (GET) ===
+@router.get("/carta/{slug_negocio}/{zona_id}/{mesa_id}", response_class=HTMLResponse)
+def get_carta_virtual(
+    request: Request,
+    slug_negocio: str,
+    zona_id: int,
+    mesa_id: int,
+    db: Session = Depends(get_db)
+):
+    """
+    Muestra la carta virtual pública de un negocio para una mesa específica.
+    """
+    nombre_decodificado = unquote(slug_negocio)
+    negocio = db.query(modelos_core.Negocio).filter(modelos_core.Negocio.nombre_comercial == nombre_decodificado).first()
+    if not negocio:
+        raise HTTPException(status_code=404, detail=f"No se encontró el negocio '{nombre_decodificado}'.")
+    
+    mesa = db.query(modelos_core.Mesa).filter(modelos_core.Mesa.id == mesa_id).first()
+    zona = db.query(modelos_core.Zona).filter(modelos_core.Zona.id == zona_id).first()
+    if not mesa or not zona:
+        raise HTTPException(status_code=404, detail="La mesa o zona especificadas no existen.")
+        
+    # Consulta para cargar el menú completo de este negocio
+    categorias = db.query(modelos_core.Categoria).options(
+        joinedload(modelos_core.Categoria.productos).joinedload(modelos_core.Producto.variantes),
+        joinedload(modelos_core.Categoria.productos).joinedload(modelos_core.Producto.grupos_modificadores).joinedload(modelos_core.GrupoModificador.opciones)
+    ).filter(modelos_core.Categoria.negocio_id == negocio.id).all()
 
+    brand_config = request.state.brand_config
+    
+    context = {
+        "request": request,
+        "negocio": negocio,
+        "categorias": categorias,
+        "brand_config": brand_config,
+        "mesa_id": mesa_id,
+        "zona_id": zona_id
+    }
+    return templates.TemplateResponse("public/carta_virtual.html", context)
 
 # === RUTA PARA PROCESAR VOZ/TEXTO (POST) ===
 @router.post("/carta/{slug_negocio}/parse-orden-voz")
@@ -104,7 +141,8 @@ async def iniciar_proceso_pedido(
                 status="pago_requerido",
                 mensaje="Tu pedido está listo. Por favor, realiza el pago para enviarlo a cocina.",
                 cuenta_id=pedido_pendiente.cuenta_id,
-                url_pago=url_pago_simulada
+                url_pago=url_pago_simulada,
+                pedido_id=pedido_pendiente.id
             )
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e))
